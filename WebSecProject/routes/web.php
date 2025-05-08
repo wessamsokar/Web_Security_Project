@@ -7,6 +7,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\OrdersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +28,7 @@ Route::get('/register/complete', [AuthController::class, 'showCompleteForm'])->n
 Route::post('/register/complete', [AuthController::class, 'completeRegistration']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Password Reset Routes - لا تحتاج تسجيل دخول
+
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
@@ -39,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Orders
     Route::resource('orders', OrderController::class);
+    Route::post('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::resource('orders', OrdersController::class);
+    Route::post('orders/{order}/status', [OrdersController::class, 'updateStatus'])->name('orders.updateStatus');
 
     // Products
     Route::resource('products', ProductController::class);

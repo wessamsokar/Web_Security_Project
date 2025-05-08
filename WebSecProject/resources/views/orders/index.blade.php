@@ -11,47 +11,49 @@
     <!-- Filters -->
     <div class="card mb-4">
         <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-3">
-                    <label class="form-label">Search Orders</label>
-                    <input type="text" class="form-control" placeholder="Order ID, Customer...">
+            <form action="{{ route('orders.index') }}" method="GET">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label">Search Orders</label>
+                        <input type="text" name="search" class="form-control" value="{{ request('search') }}"
+                            placeholder="Order ID, Customer...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option>All Status</option>
+                            @foreach(['Accept', 'Reject'] as $status)
+                                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>{{ $status }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Date Range</label>
+                        <select name="date_range" class="form-select">
+                            <option>Last 7 Days</option>
+                            <option>Last 30 Days</option>
+                            <option>This Month</option>
+                            <option>Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Payment Status</label>
+                        <select name="payment_status" class="form-select">
+                            <option>All</option>
+                            <option>Paid</option>
+                            <option>Pending</option>
+                            <option>Failed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label d-block">&nbsp;</label>
+                        <button type="submit" class="btn btn-secondary w-100">
+                            <i class="bi bi-funnel me-2"></i>Apply Filters
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Status</label>
-                    <select class="form-select">
-                        <option>All Status</option>
-                        <option>Pending</option>
-                        <option>Processing</option>
-                        <option>Shipped</option>
-                        <option>Delivered</option>
-                        <option>Cancelled</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Date Range</label>
-                    <select class="form-select">
-                        <option>Last 7 Days</option>
-                        <option>Last 30 Days</option>
-                        <option>This Month</option>
-                        <option>Custom Range</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Payment Status</label>
-                    <select class="form-select">
-                        <option>All</option>
-                        <option>Paid</option>
-                        <option>Pending</option>
-                        <option>Failed</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label d-block">&nbsp;</label>
-                    <button class="btn btn-secondary w-100">
-                        <i class="bi bi-funnel me-2"></i>Apply Filters
-                    </button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -72,134 +74,63 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>#ORD-2024-001</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="https://via.placeholder.com/32x32" class="rounded-circle me-2" alt="Customer">
-                                    <div>
-                                        <div class="fw-bold">John Doe</div>
-                                        <small class="text-muted">john@example.com</small>
+                        @forelse($orders as $order)
+                            <tr>
+                                <td>#ORD-{{ $order->id }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-2">#{{ optional($order->user)->id ?? 'N/A' }}</div>
+                                        <div>
+                                            <div class="fw-bold">{{ optional($order->user)->name ?? 'Guest' }}</div>
+                                            <small class="text-muted">{{ optional($order->user)->email ?? 'N/A' }}</small>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div>Mar 10, 2024</div>
-                                <small class="text-muted">3:45 PM</small>
-                            </td>
-                            <td>$245.99</td>
-                            <td><span class="badge bg-success">Delivered</span></td>
-                            <td><span class="badge bg-success">Paid</span></td>
-                            <td>
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#ORD-2024-002</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="https://via.placeholder.com/32x32" class="rounded-circle me-2" alt="Customer">
-                                    <div>
-                                        <div class="fw-bold">Jane Smith</div>
-                                        <small class="text-muted">jane@example.com</small>
+                                </td>
+                                <td>
+                                    <div>{{ $order->created_at->format('M d, Y') }}</div>
+                                    <small class="text-muted">{{ $order->created_at->format('g:i A') }}</small>
+                                </td>
+                                <td>${{ number_format($order->total, 2) }}</td>
+                                <td>
+                                    @if (!in_array($order->status, ['Accept', 'Reject']))
+                                        <form action="{{ route('orders.updateStatus', $order) }}" method="POST"
+                                            class="d-flex gap-1">
+                                            @csrf
+                                            <input type="hidden" name="status" value="">
+                                            <button type="submit" class="btn btn-sm btn-success"
+                                                onclick="event.preventDefault(); this.closest('form').status.value='Accept'; this.closest('form').submit();">
+                                                Accept
+                                            </button>
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="event.preventDefault(); this.closest('form').status.value='Reject'; this.closest('form').submit();">
+                                                Reject
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span
+                                            class="badge bg-{{ $order->status === 'Accept' ? 'success' : 'danger' }}">{{ $order->status }}</span>
+                                    @endif
+                                </td>
+
+
+                                <td><span class="badge bg-success">Credit</span></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="deleteOrder({{ $order->id }})">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                     </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div>Mar 10, 2024</div>
-                                <small class="text-muted">2:30 PM</small>
-                            </td>
-                            <td>$129.99</td>
-                            <td><span class="badge bg-warning">Processing</span></td>
-                            <td><span class="badge bg-success">Paid</span></td>
-                            <td>
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#ORD-2024-003</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="https://via.placeholder.com/32x32" class="rounded-circle me-2" alt="Customer">
-                                    <div>
-                                        <div class="fw-bold">Robert Johnson</div>
-                                        <small class="text-muted">robert@example.com</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div>Mar 10, 2024</div>
-                                <small class="text-muted">1:15 PM</small>
-                            </td>
-                            <td>$89.99</td>
-                            <td><span class="badge bg-info">Shipped</span></td>
-                            <td><span class="badge bg-success">Paid</span></td>
-                            <td>
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#ORD-2024-004</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="https://via.placeholder.com/32x32" class="rounded-circle me-2" alt="Customer">
-                                    <div>
-                                        <div class="fw-bold">Sarah Wilson</div>
-                                        <small class="text-muted">sarah@example.com</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div>Mar 10, 2024</div>
-                                <small class="text-muted">12:00 PM</small>
-                            </td>
-                            <td>$159.99</td>
-                            <td><span class="badge bg-secondary">Pending</span></td>
-                            <td><span class="badge bg-warning">Pending</span></td>
-                            <td>
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center">No orders found</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -208,16 +139,6 @@
 
     <!-- Pagination -->
     <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1">Previous</a>
-            </li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-                <a class="page-link" href="#">Next</a>
-            </li>
-        </ul>
+        {{ $orders->links() }}
     </nav>
 @endsection
