@@ -38,15 +38,6 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Payment Status</label>
-                        <select name="payment_status" class="form-select">
-                            <option>All</option>
-                            <option>Paid</option>
-                            <option>Pending</option>
-                            <option>Failed</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
                         <label class="form-label d-block">&nbsp;</label>
                         <button type="submit" class="btn btn-secondary w-100">
                             <i class="bi bi-funnel me-2"></i>Apply Filters
@@ -113,7 +104,7 @@
                                 </td>
 
 
-                                <td><span class="badge bg-success">Credit</span></td>
+                                <td><span class="badge bg-success">{{ $order->payment_method }}</span></td>
                                 <td>
                                     <div class="btn-group">
                                         <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-secondary">

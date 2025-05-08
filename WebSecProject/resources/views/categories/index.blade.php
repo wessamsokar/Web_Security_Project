@@ -6,142 +6,78 @@
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3">Categories Management</h1>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
             <i class="bi bi-plus-lg me-2"></i>Add New Category
         </button>
     </div>
 
-    <!-- Categories Grid -->
     <div class="row g-4">
-        <!-- Category Card 1 -->
-        <div class="col-md-4">
-            <div class="category-card p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="category-icon text-primary me-3">
-                        <i class="bi bi-dress-front"></i>
-                    </div>
-                    <div>
-                        <h5 class="mb-1">Dresses</h5>
-                        <small class="text-muted">45 Products</small>
-                    </div>
-                    <div class="ms-auto">
-                        <div class="dropdown">
-                            <button class="btn btn-link text-muted" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
-                            </ul>
+        @foreach($categories as $category)
+            <div class="col-md-4">
+                <div class="category-card p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="category-icon text-primary me-3">
+                            <i class="bi bi-tags"></i> {{-- ممكن تبدلي الأيقونة حسب نوع التصنيف --}}
+                        </div>
+                        <div>
+                            <h5 class="mb-1">{{ $category->name }}</h5>
+                            <small class="text-muted">{{ $category->products_count }} Products</small>
+                        </div>
+                        <div class="ms-auto">
+                            <div class="dropdown">
+                                <button class="btn btn-link text-muted" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('categories.show', $category) }}">
+                                            <i class="bi bi-eye me-2"></i>View Products</a></li>
+                                    <li>
+                                        <form action="{{ route('categories.destroy', $category) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-trash me-2"></i>Delete
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-primary" style="width: 70%"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-3">
-                    <small class="text-muted">Active Products</small>
-                    <small class="text-primary">70%</small>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" style="width: {{ min(100, $category->products_count * 2) }}%">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-3">
+                        <small class="text-muted">Active Products</small>
+                        <small class="text-primary">{{ min(100, $category->products_count * 2) }}%</small>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endforeach
+    </div>
 
-        <!-- Category Card 2 -->
-        <div class="col-md-4">
-            <div class="category-card p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="category-icon text-success me-3">
-                        <i class="bi bi-shirt"></i>
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ route('categories.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div>
-                        <h5 class="mb-1">Tops</h5>
-                        <small class="text-muted">38 Products</small>
-                    </div>
-                    <div class="ms-auto">
-                        <div class="dropdown">
-                            <button class="btn btn-link text-muted" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
-                            </ul>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Category Name</label>
+                            <input type="text" name="name" class="form-control" required>
                         </div>
                     </div>
-                </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" style="width: 85%"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-3">
-                    <small class="text-muted">Active Products</small>
-                    <small class="text-success">85%</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Category Card 3 -->
-        <div class="col-md-4">
-            <div class="category-card p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="category-icon text-info me-3">
-                        <i class="bi bi-handbag"></i>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Category</button>
                     </div>
-                    <div>
-                        <h5 class="mb-1">Accessories</h5>
-                        <small class="text-muted">52 Products</small>
-                    </div>
-                    <div class="ms-auto">
-                        <div class="dropdown">
-                            <button class="btn btn-link text-muted" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-info" style="width: 60%"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-3">
-                    <small class="text-muted">Active Products</small>
-                    <small class="text-info">60%</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Category Card 4 -->
-        <div class="col-md-4">
-            <div class="category-card p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="category-icon text-warning me-3">
-                        <i class="bi bi-boot"></i>
-                    </div>
-                    <div>
-                        <h5 class="mb-1">Footwear</h5>
-                        <small class="text-muted">29 Products</small>
-                    </div>
-                    <div class="ms-auto">
-                        <div class="dropdown">
-                            <button class="btn btn-link text-muted" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-warning" style="width: 75%"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-3">
-                    <small class="text-muted">Active Products</small>
-                    <small class="text-warning">75%</small>
-                </div>
+                </form>
             </div>
         </div>
     </div>

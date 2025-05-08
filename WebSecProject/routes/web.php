@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\CategoriesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +20,7 @@ Route::get('/', function () {
     return redirect()->route('login'); // redirect بدل عرض الصفحة على طول
 });
 
-// Authentication Routes - لا تحتاج تسجيل دخول
+
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
@@ -39,8 +40,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Orders
-    Route::resource('orders', OrderController::class);
-    Route::post('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::resource('orders', OrdersController::class);
     Route::post('orders/{order}/status', [OrdersController::class, 'updateStatus'])->name('orders.updateStatus');
 
@@ -48,9 +47,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('products', ProductController::class);
 
     // Categories
-    Route::get('/categories', function () {
-        return view('categories.index');
-    })->name('categories.index');
+    Route::resource('categories', CategoriesController::class);
 
     // User Management
     Route::resource('users', UserController::class);
