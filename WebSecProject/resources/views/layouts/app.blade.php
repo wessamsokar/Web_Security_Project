@@ -331,6 +331,15 @@
             <span class="logo">Be</span>
             <span class="brand">Behance</span>
         </div>
+        <div class="ms-auto">
+            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn text-white border-0">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Logout
+                </button>
+            </form>
+        </div>
     </nav>
 
     <!-- Sidebar -->
