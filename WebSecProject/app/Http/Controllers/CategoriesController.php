@@ -9,7 +9,18 @@ class CategoriesController extends Controller
 {
     public function index()
     {
-        $categories = Category::withCount('products')->get();
+        $query = Category::withCount('products');
+
+        if (request('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%');
+        }
+
+        if (request('gender')) {
+            $query->where('gender', request('gender'));
+        }
+
+        $categories = $query->get();
+
         return view('categories.index', compact('categories'));
     }
 

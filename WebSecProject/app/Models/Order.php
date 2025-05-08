@@ -24,14 +24,4 @@ class Order extends Model
         return $this->hasMany(Purchase::class);
     }
 
-    public function getStatusColorAttribute()
-    {
-        return [
-            'Pending' => 'secondary',
-            'Processing' => 'warning',
-            'Shipped' => 'info',
-            'Delivered' => 'success',
-            'Cancelled' => 'danger',
-        ][$this->status] ?? 'secondary';
-    }
 }

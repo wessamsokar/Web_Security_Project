@@ -27,7 +27,7 @@
 
                     <div class="col-md-6 mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $user->email) }}" required>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $user->email) }}" readonly>
                         @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -73,17 +73,23 @@
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Roles</label>
-                        <div class="@error('roles') is-invalid @enderror">
-                            @foreach($roles as $role)
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="roles[]" value="{{ $role->id }}" id="role_{{ $role->id }}"
-                                    {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="role_{{ $role->id }}">
-                                    {{ $role->name }}
-                                </label>
+                        @if(auth()->id() != $user->id)
+                            <div class="@error('roles') is-invalid @enderror">
+                                @foreach($roles as $role)
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="roles[]" value="{{ $role->id }}" id="role_{{ $role->id }}"
+                                        {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="role_{{ $role->id }}">
+                                        {{ $role->name }}
+                                    </label>
+                                </div>
+                                @endforeach
                             </div>
-                            @endforeach
-                        </div>
+                        @else
+                            <div class="alert alert-info">
+                                You cannot modify your own roles.
+                            </div>
+                        @endif
                         @error('roles')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

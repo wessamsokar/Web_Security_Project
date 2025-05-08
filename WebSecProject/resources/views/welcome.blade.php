@@ -20,7 +20,7 @@
             <div class="stat-card p-4">
                 <h6 class="text-muted mb-3">Total Products</h6>
                 <h3 class="mb-2">{{ $totalProducts ?? 0 }}</h3>
-                
+
             </div>
         </div>
         <div class="col-md-4">
@@ -51,19 +51,4 @@
     </div>
 
 
-
-    @section('additional_styles')
-        .activity-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        }
-        .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        }
-    @endsection
 @endsection

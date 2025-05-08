@@ -132,8 +132,4 @@
         </div>
     </div>
 
-    <!-- Pagination -->
-    <nav class="mt-4">
-        {{ $orders->links() }}
-    </nav>
 @endsection

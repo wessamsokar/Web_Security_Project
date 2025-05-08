@@ -32,10 +32,8 @@
                         @forelse($category->products as $product)
                             <tr>
                                 <td>
-                                    <img src="{{ asset('storage/' . $product->image) }}"
-                                         alt="{{ $product->name }}"
-                                         class="img-thumbnail"
-                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                                        class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
                                 </td>
                                 <td>#{{ $product->id }}</td>
                                 <td>{{ $product->name }}</td>

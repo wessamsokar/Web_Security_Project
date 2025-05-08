@@ -11,15 +11,57 @@
         </button>
     </div>
 
+    <!-- Search & Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('categories.index') }}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Search Categories</label>
+                        <input type="text" name="search" class="form-control" value="{{ request('search') }}"
+                            placeholder="Search by name...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Filter by Gender</label>
+                        <select name="gender" class="form-select">
+                            <option value="">All Genders</option>
+                            <option value="men" {{ request('gender') == 'men' ? 'selected' : '' }}>Men</option>
+                            <option value="women" {{ request('gender') == 'women' ? 'selected' : '' }}>Women</option>
+                            <option value="kids" {{ request('gender') == 'kids' ? 'selected' : '' }}>Kids & Baby</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search me-1"></i> Search
+                            </button>
+                            @if(request()->hasAny(['search', 'gender']))
+                                <a href="{{ route('categories.index') }}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row g-4">
         @foreach($categories as $category)
             <div class="col-md-4">
                 <div class="category-card p-4">
                     <div class="d-flex align-items-center mb-3">
                         <div class="category-icon text-primary me-3">
-                            <i class="bi bi-tags"></i> {{-- ممكن تبدلي الأيقونة حسب نوع التصنيف --}}
+                            <i class="bi bi-tags"></i>
                         </div>
                         <div>
+                            <small class="text-muted mb-1 d-block">
+                                <i
+                                    class="bi {{ $category->gender == 'men' ? 'bi-gender-male' : ($category->gender == 'women' ? 'bi-gender-female' : 'bi-gender-ambiguous') }}"></i>
+                                {{ ucfirst($category->gender) }}
+                            </small>
                             <h5 class="mb-1">{{ $category->name }}</h5>
                             <small class="text-muted">{{ $category->products_count }} Products</small>
                         </div>
@@ -72,6 +114,15 @@
                             <label class="form-label">Category Name</label>
                             <input type="text" name="name" class="form-control" required>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Gender</label>
+                            <select name="gender" class="form-control" required>
+                                <option value="">Select Gender</option>
+                                <option value="men">Men</option>
+                                <option value="women">Women</option>
+                                <option value="kids">Kids & Baby</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -82,16 +133,4 @@
         </div>
     </div>
 
-    @section('additional_styles')
-        .category-icon {
-        width: 48px;
-        height: 48px;
-        background: #f8f9fa;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        }
-    @endsection
 @endsection
