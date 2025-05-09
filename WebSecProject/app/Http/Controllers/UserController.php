@@ -32,7 +32,7 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->paginate(10);
+        $users = $query->paginate(6);
         $roles = Role::all();
 
         return view('users.index', compact('users', 'roles'));

@@ -41,7 +41,7 @@ class ProductController extends Controller
             }
         }
 
-        $products = $query->latest()->paginate(12);
+        $products = $query->latest()->paginate(8);
         $categories = Category::all();
 
         return view('products.index', compact('products', 'categories'));
@@ -115,6 +115,7 @@ class ProductController extends Controller
         }
 
         $product->delete();
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully');
+        return redirect()->route('products.index')
+            ->with('success', 'Product deleted successfully');
     }
 }

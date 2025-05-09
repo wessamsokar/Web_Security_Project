@@ -25,9 +25,11 @@
                         <label class="form-label">Filter by Gender</label>
                         <select name="gender" class="form-select">
                             <option value="">All Genders</option>
-                            <option value="men" {{ request('gender') == 'men' ? 'selected' : '' }}>Men</option>
-                            <option value="women" {{ request('gender') == 'women' ? 'selected' : '' }}>Women</option>
-                            <option value="kids" {{ request('gender') == 'kids' ? 'selected' : '' }}>Kids & Baby</option>
+                            <option value="Men" {{ request('gender') == 'Men' ? 'selected' : '' }}>Men</option>
+                            <option value="Women" {{ request('gender') == 'Women' ? 'selected' : '' }}>Women</option>
+                            <option value="Kids & Baby" {{ request('gender') == 'Kids & Baby' ? 'selected' : '' }}>Kids & Baby
+                            </option>
+                            <option value="Unisex" {{ request('gender') == 'Unisex' ? 'selected' : '' }}>Unisex</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -59,7 +61,7 @@
                         <div>
                             <small class="text-muted mb-1 d-block">
                                 <i
-                                    class="bi {{ $category->gender == 'men' ? 'bi-gender-male' : ($category->gender == 'women' ? 'bi-gender-female' : 'bi-gender-ambiguous') }}"></i>
+                                    class="bi {{ $category->gender == 'Men' ? 'bi-gender-male' : ($category->gender == 'Women' ? 'bi-gender-female' : 'bi-gender-ambiguous') }}"></i>
                                 {{ ucfirst($category->gender) }}
                             </small>
                             <h5 class="mb-1">{{ $category->name }}</h5>
@@ -74,7 +76,8 @@
                                     <li><a class="dropdown-item" href="{{ route('categories.show', $category) }}">
                                             <i class="bi bi-eye me-2"></i>View Products</a></li>
                                     <li>
-                                        <form action="{{ route('categories.destroy', $category) }}" method="POST">
+                                        <form action="{{ route('categories.destroy', ['category' => $category->id]) }}"
+                                            method="POST" onsubmit="return confirm('Are you sure?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="dropdown-item">
@@ -118,9 +121,10 @@
                             <label class="form-label">Gender</label>
                             <select name="gender" class="form-control" required>
                                 <option value="">Select Gender</option>
-                                <option value="men">Men</option>
-                                <option value="women">Women</option>
-                                <option value="kids">Kids & Baby</option>
+                                <option value="Men">Men</option>
+                                <option value="Women">Women</option>
+                                <option value="Kids & Baby">Kids & Baby</option>
+                                <option value="Unisex">Unisex</option>
                             </select>
                         </div>
                     </div>
@@ -132,5 +136,8 @@
             </div>
         </div>
     </div>
-
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        {{ $categories->links() }}
+    </div>
 @endsection

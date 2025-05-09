@@ -43,11 +43,12 @@
                                         <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline">
+                                        <form
+                                            action="{{ route('categories.remove-product', ['category' => $category->id, 'product' => $product->id]) }}"
+                                            method="POST" onsubmit="return confirm('Move this product to Unisex category?');">
                                             @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-trash"></i>
+                                            <button type="submit" class="btn btn-warning btn-sm">
+                                                <i class="bi bi-box-arrow-right"></i> Move to Unisex
                                             </button>
                                         </form>
                                     </div>

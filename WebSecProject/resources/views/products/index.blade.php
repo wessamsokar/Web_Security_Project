@@ -62,8 +62,7 @@
             </form>
         </div>
     </div>
-
-
+    <!-- Products List -->
     <div class="row g-4">
         @forelse($products as $product)
             <div class="col-md-3">
@@ -113,4 +112,8 @@
         @endforelse
     </div>
 
+    <!-- Pagination -->
+    <div class="mt-4 d-flex justify-content-center">
+        {{ $products->withQueryString()->links() }}
+    </div>
 @endsection

@@ -22,7 +22,7 @@ class OrdersController extends Controller
             $query->where('status', $request->status);
         }
 
-        $orders = $query->latest()->paginate(15);
+        $orders = $query->latest()->paginate(10);
 
         return view('orders.index', compact('orders'));
     }

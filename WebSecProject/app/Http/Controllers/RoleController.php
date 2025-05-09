@@ -28,7 +28,17 @@ class RoleController extends Controller
             });
         }
 
-        $roles = $query->get();
+        $roles = Role::with(['permissions', 'users'])
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->when($request->permission, function ($query, $permission) {
+                $query->whereHas('permissions', function ($q) use ($permission) {
+                    $q->where('id', $permission);
+                });
+            })
+            ->paginate(5);  // Changed from get() to paginate()
+
         $permissions = Permission::all();
 
         return view('roles.index', compact('roles', 'permissions'));

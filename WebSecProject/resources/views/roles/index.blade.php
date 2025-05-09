@@ -110,4 +110,8 @@
             </div>
         </div>
     </div>
+     <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        {{ $roles->links() }}
+    </div>
 @endsection

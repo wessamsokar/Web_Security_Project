@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
@@ -17,7 +16,7 @@ use App\Http\Controllers\CategoriesController;
 */
 
 Route::get('/', function () {
-    return redirect()->route('login'); // redirect بدل عرض الصفحة على طول
+    return redirect()->route('login'); // Redirect to login page
 });
 
 
@@ -43,11 +42,13 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('orders', OrdersController::class);
     Route::post('orders/{order}/status', [OrdersController::class, 'updateStatus'])->name('orders.updateStatus');
 
-    // Products
-    Route::resource('products', ProductController::class);
-
     // Categories
     Route::resource('categories', CategoriesController::class);
+    Route::post('categories/{category}/remove-product/{product}', [CategoriesController::class, 'removeProduct'])
+        ->name('categories.remove-product');
+
+    // Products
+    Route::resource('products', ProductController::class);
 
     // User Management
     Route::resource('users', UserController::class);
@@ -56,3 +57,4 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
     Route::post('roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user');
 });
+

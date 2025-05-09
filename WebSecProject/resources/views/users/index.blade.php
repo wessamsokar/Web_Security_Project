@@ -112,4 +112,25 @@
             </div>
         </div>
     </div>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        {{ $users->withQueryString()->links() }}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.querySelector('input[name="search"]');
+            const roleSelect = document.querySelector('select[name="role"]');
+
+            searchInput.addEventListener('input', function () {
+                if (this.value.length > 0) {
+                    roleSelect.value = '';
+                }
+            });
+
+            roleSelect.addEventListener('change', function () {
+                if (this.value) {
+                    searchInput.value = '';
+                }
+            });
+        });
 @endsection
