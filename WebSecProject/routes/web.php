@@ -8,6 +8,12 @@ use App\Http\Controllers\PermissionsController;
 
 
 Route::get('/', function () {
+    $email = emailFromLoginCertificate();
+    if
+    ($email && !auth()->user()) {
+         $user = User::where('email', $email)->first();
+         if($user) Auth::login($user);
+        }
     return view('welcome');
 });
 
