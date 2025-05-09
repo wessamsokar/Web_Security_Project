@@ -17,6 +17,32 @@
 
     <div class="card">
         <div class="card-body">
+            <!-- Add Search Form -->
+            <form method="GET" action="{{ route('categories.show', $category) }}" class="mb-4">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <input type="text" name="search_id" class="form-control" placeholder="Search by ID..."
+                            value="{{ request('search_id') }}" pattern="[0-9]*">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="search" class="form-control" placeholder="Search by name..."
+                            value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-4">
+
+                            <button class="btn btn-dark" type="submit">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                            @if(request()->hasAny(['search', 'search_id']))
+                                <a href="{{ route('categories.show', $category) }}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </form>
+
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -40,17 +66,18 @@
                                 <td>${{ number_format($product->price, 2) }}</td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <form
-                                            action="{{ route('categories.remove-product', ['category' => $category->id, 'product' => $product->id]) }}"
-                                            method="POST" onsubmit="return confirm('Move this product to Unisex category?');">
-                                            @csrf
-                                            <button type="submit" class="btn btn-warning btn-sm">
-                                                <i class="bi bi-box-arrow-right"></i> Move to Unisex
-                                            </button>
-                                        </form>
+                                        @if($category->gender !== 'Unisex')
+                                        @can('edit_category')
+                                            <form
+                                                action="{{ route('categories.remove-product', ['category' => $category->id, 'product' => $product->id]) }}"
+                                                method="POST" onsubmit="return confirm('Move this product to Unisex category?');">
+                                                @csrf
+                                                <button type="submit" class="btn btn-warning btn-sm">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            </form>
+                                        @endcan
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

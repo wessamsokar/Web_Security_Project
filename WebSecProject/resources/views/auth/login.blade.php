@@ -301,10 +301,21 @@
                         submitting: false,
                         showPassword: false,
                         email: '{{ old('email') }}',
-                        showPasswordField: false
+                        showPasswordField: false,
+                        isValidEmail: false,
+                        validateEmail() {
+                            const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                            this.isValidEmail = emailRegex.test(this.email);
+                        }
                     }"
-                    @submit="submitting = true">
+                    @submit.prevent="validateEmail(); if(isValidEmail) $event.target.submit()">
                     @csrf
+
+                    @if(session('error'))
+                        <div class="alert alert-danger mb-3">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
                     @if($errors->any())
                         <div class="alert alert-danger mb-3">
@@ -319,16 +330,18 @@
                     <div class="mb-3">
                         <label for="email" class="form-label">Email address</label>
                         <input type="email"
-                            class="form-control @error('email') is-invalid @enderror"
+                            class="form-control"
+                            :class="{'is-invalid': email && !isValidEmail, 'is-valid': email && isValidEmail}"
                             id="email"
                             name="email"
                             x-model="email"
+                            @input="validateEmail()"
                             required
                             autocomplete="email"
                             placeholder="example@domain.com">
-                        @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <div class="invalid-feedback" x-show="email && !isValidEmail">
+                            Please enter a valid email address
+                        </div>
                     </div>
 
                     <div class="mb-3"

@@ -138,18 +138,25 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if (auth()->id() === $user->id) {
-            return redirect()->back()->with('error', 'You cannot delete your own account.');
+        // Check if this is the first Super Admin user
+        $firstSuperAdmin = User::whereHas('roles', function ($q) {
+            $q->where('name', 'Super Admin');
+        })->orderBy('id')->first();
+
+        if ($user->id === $firstSuperAdmin->id) {
+            return redirect()->route('users.index')
+                ->with('error', 'The first Super Admin user cannot be deleted.');
         }
 
-        if ($user->hasRole('Super Admin')) {
-            return redirect()->back()->with('error', 'You cannot delete a Super Admin.');
+        if ($user->id === auth()->id()) {
+            return redirect()->route('users.index')
+                ->with('error', 'You cannot delete your own account.');
         }
 
         $user->delete();
-
         return redirect()->route('users.index')
             ->with('success', 'User deleted successfully.');
     }
+
 
 }

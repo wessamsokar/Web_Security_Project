@@ -7,7 +7,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 mb-0 text-gray-800">Roles Management</h1>
             @can('create roles')
-                <a href="{{ route('roles.create') }}" class="btn btn-primary">
+                <a href="{{ route('roles.create') }}" class="btn btn-secondary">
                     <i class="bi bi-plus-circle"></i> Create New Role
                 </a>
             @endcan
@@ -22,9 +22,6 @@
                             <div class="input-group">
                                 <input type="text" name="search" class="form-control"
                                        placeholder="Search roles..." value="{{ request('search') }}">
-                                <button class="btn btn-primary" type="submit">
-                                    <i class="bi bi-search"></i> Search
-                                </button>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -37,10 +34,14 @@
                                 @endforeach
                             </select>
                         </div>
+
                         <div class="col-md-2">
-                            @if(request()->has('search') || request()->has('permission'))
+                                <button class="btn btn-dark" type="submit">
+                                    <i class="bi bi-search me-2"></i>Search
+                                </button>
+                            @if(request()->hasAny(['search', 'permission']))
                                 <a href="{{ route('roles.index') }}" class="btn btn-secondary">
-                                    <i class="bi bi-x-circle"></i> Clear Filters
+                                    <i class="bi bi-x-circle"></i>
                                 </a>
                             @endif
                         </div>
@@ -91,6 +92,7 @@
                                                 </a>
                                             @endcan
                                             @can('delete roles')
+                                                @if($role->name !== 'Super Admin')
                                                 <form action="{{ route('roles.destroy', $role) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
@@ -99,6 +101,7 @@
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
+                                                @endif
                                             @endcan
                                         </div>
                                     </td>

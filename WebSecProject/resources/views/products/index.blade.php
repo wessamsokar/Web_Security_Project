@@ -6,9 +6,11 @@
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3">Products Management</h1>
-        <a href="{{ route('products.create') }}" class="btn btn-primary">
+        @can('create_products')
+        <a href="{{ route('products.create') }}" class="btn btn-secondary">
             <i class="bi bi-plus-lg me-2"></i>Add New Product
         </a>
+        @endcan
     </div>
 
     <!-- Filters -->
@@ -17,12 +19,10 @@
             <form method="GET" action="{{ route('products.index') }}">
                 <div class="row align-items-center">
                     <div class="col-md-3">
-                        <label class="form-label">Search Products</label>
                         <input type="text" name="search" class="form-control" value="{{ request('search') }}"
                             placeholder="Search by name...">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Category</label>
                         <select name="category" class="form-select">
                             <option value="">All Categories</option>
                             @foreach($categories as $category)
@@ -33,7 +33,6 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Gender</label>
                         <select name="gender" class="form-select">
                             <option value="">All</option>
                             <option value="men" {{ request('gender') == 'men' ? 'selected' : '' }}>Men</option>
@@ -43,7 +42,6 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Status</label>
                         <select name="stock_status" class="form-select">
                             <option value="">All Status</option>
                             <option value="in" {{ request('stock_status') == 'in' ? 'selected' : '' }}>In Stock</option>
@@ -53,10 +51,14 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label d-block">&nbsp;</label>
-                        <button type="submit" class="btn btn-secondary w-100">
-                            <i class="bi bi-funnel me-2"></i>Apply Filters
+                        <button type="submit" class="btn btn-dark">
+                            <i class="bi bi-search me-2"></i>Search
                         </button>
+                        @if(request()->hasAny(['search', 'stock_status', 'category' ,'gender']))
+                            <a href="{{ route('products.index') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             </form>
@@ -89,10 +91,14 @@
                                 style="width: {{ min(100, $product->stock * 5) }}%">
                             </div>
                         </div>
+
                         <div class="btn-group w-100">
+                            @can('edit_products')
                             <a href="{{ route('products.edit', $product) }}" class="btn btn-outline-primary btn-sm">
                                 <i class="bi bi-pencil me-1"></i>Edit
                             </a>
+                            @endcan
+                            @can('delete_products')
                             <form method="POST" action="{{ route('products.destroy', $product) }}"
                                 onsubmit="return confirm('Are you sure you want to delete this product?');">
                                 @csrf
@@ -101,6 +107,7 @@
                                     <i class="bi bi-trash me-1"></i>Delete
                                 </button>
                             </form>
+                            @endcan
                         </div>
                     </div>
                 </div>

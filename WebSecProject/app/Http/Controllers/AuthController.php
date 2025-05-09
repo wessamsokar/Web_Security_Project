@@ -31,9 +31,8 @@ class AuthController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->withInput($request->only('email'));
+        return back()->with('error', 'Invalid email or password. Please try again.')
+            ->withInput($request->only('email'));
     }
 
     public function register(Request $request)
@@ -48,17 +47,33 @@ class AuthController extends Controller
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'name' => null,
+
             ]);
+            $user->assignRole('Customer');
 
             Auth::login($user);
 
             return redirect()->route('register.complete');
         } catch (\Exception $e) {
             \Log::error('Registration failed: ' . $e->getMessage());
+
+            // Check if error is due to duplicate email
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                $errors = $e->errors();
+                if (isset($errors['email']) && str_contains($errors['email'][0], 'taken')) {
+                    return back()
+                        ->withInput($request->except('password', 'password_confirmation'))
+                        ->withErrors([
+                            'email' => 'Email already exists'
+                        ]);
+                }
+            }
+
+            // For other errors
             return back()
                 ->withInput($request->except('password', 'password_confirmation'))
                 ->withErrors([
-                    'email' => 'Registration failed. Please try again. Error: ' . $e->getMessage(),
+                    'email' => 'Registration failed'
                 ]);
         }
     }

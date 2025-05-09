@@ -21,7 +21,8 @@
                     <div class="col-md-2">
                         <label class="form-label">Status</label>
                         <select name="status" class="form-select">
-                            <option>All Status</option>
+                            <option value="">All Status</option>
+                            <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
                             @foreach(['Accept', 'Reject'] as $status)
                                 <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>{{ $status }}
                                 </option>
@@ -31,17 +32,25 @@
                     <div class="col-md-2">
                         <label class="form-label">Date Range</label>
                         <select name="date_range" class="form-select">
-                            <option>Last 7 Days</option>
-                            <option>Last 30 Days</option>
-                            <option>This Month</option>
-                            <option>Custom Range</option>
+                            <option value="">All Time</option>
+                            <option value="last_7_days" {{ request('date_range') == 'last_7_days' ? 'selected' : '' }}>Last 7
+                                Days</option>
+                            <option value="last_30_days" {{ request('date_range') == 'last_30_days' ? 'selected' : '' }}>Last
+                                30 Days</option>
+                            <option value="this_month" {{ request('date_range') == 'this_month' ? 'selected' : '' }}>This
+                                Month</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label d-block">&nbsp;</label>
-                        <button type="submit" class="btn btn-secondary w-100">
-                            <i class="bi bi-funnel me-2"></i>Apply Filters
+                        <button type="submit" class="btn btn-dark">
+                            <i class="bi bi-search me-2"></i>Search
                         </button>
+                        @if(request()->hasAny(['search', 'status', 'date_range']))
+                            <a href="{{ route('orders.index') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             </form>
@@ -60,7 +69,6 @@
                             <th>Date</th>
                             <th>Total</th>
                             <th>Status</th>
-                            <th>Payment</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -82,6 +90,7 @@
                                     <small class="text-muted">{{ $order->created_at->format('g:i A') }}</small>
                                 </td>
                                 <td>${{ number_format($order->total, 2) }}</td>
+                                @can('manage_orders')
                                 <td>
                                     @if (!in_array($order->status, ['Accept', 'Reject']))
                                         <form action="{{ route('orders.updateStatus', $order) }}" method="POST"
@@ -102,14 +111,19 @@
                                             class="badge bg-{{ $order->status === 'Accept' ? 'success' : 'danger' }}">{{ $order->status }}</span>
                                     @endif
                                 </td>
+                                @endcan
 
 
-                                <td><span class="badge bg-success">{{ $order->payment_method }}</span></td>
+                                <td><span class="badge bg-success"></span></td>
                                 <td>
                                     <div class="btn-group">
+                                        @can('view_orders')
                                         <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-secondary">
                                             <i class="bi bi-eye"></i>
                                         </a>
+                                        @endcan
+
+                                        @can('delete_orders')
                                         <form action="{{ route('orders.destroy', $order) }}" method="POST"
                                             style="display: inline;">
                                             @csrf
@@ -118,6 +132,7 @@
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>

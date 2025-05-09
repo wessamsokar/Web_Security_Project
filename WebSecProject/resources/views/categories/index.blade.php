@@ -3,12 +3,20 @@
 @section('title', 'Categories Management')
 
 @section('content')
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3">Categories Management</h1>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+        @can('create_category')
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
             <i class="bi bi-plus-lg me-2"></i>Add New Category
         </button>
+        @endcan
     </div>
 
     <!-- Search & Filters -->
@@ -17,12 +25,10 @@
             <form method="GET" action="{{ route('categories.index') }}">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label">Search Categories</label>
                         <input type="text" name="search" class="form-control" value="{{ request('search') }}"
                             placeholder="Search by name...">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Filter by Gender</label>
                         <select name="gender" class="form-select">
                             <option value="">All Genders</option>
                             <option value="Men" {{ request('gender') == 'Men' ? 'selected' : '' }}>Men</option>
@@ -33,10 +39,9 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-search me-1"></i> Search
+                            <button type="submit" class="btn btn-dark">
+                                <i class="bi bi-search me-2"></i> Search
                             </button>
                             @if(request()->hasAny(['search', 'gender']))
                                 <a href="{{ route('categories.index') }}" class="btn btn-secondary">
@@ -53,9 +58,19 @@
     <div class="row g-4">
         @foreach($categories as $category)
             <div class="col-md-4">
-                <div class="category-card p-4">
+                <div class="category-card p-4 {{
+                $category->gender === 'Unisex' ? 'bg-dark bg-opacity-10 border border-dark shadow-sm' :
+                ($category->gender === 'Women' ? 'bg-danger bg-opacity-10 border border-danger shadow-sm' :
+                ($category->gender === 'Men' ? 'bg-info bg-opacity-10 border border-info shadow-sm' :
+                ($category->gender === 'Kids & Baby' ? 'bg-warning bg-opacity-10 border border-warning shadow-sm' : '')))
+
+                        }}">
                     <div class="d-flex align-items-center mb-3">
-                        <div class="category-icon text-primary me-3">
+                        <div class="category-icon {{
+                $category->gender === 'Unisex' ? 'text-info' :
+                ($category->gender === 'Women' ? 'text-danger' :
+                    ($category->gender === 'Men' ? 'text-dark' : 'text-secondary'))
+                                }} me-3">
                             <i class="bi bi-tags"></i>
                         </div>
                         <div>
@@ -73,18 +88,30 @@
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
                                 <ul class="dropdown-menu">
+                                    @can('view_products')
                                     <li><a class="dropdown-item" href="{{ route('categories.show', $category) }}">
                                             <i class="bi bi-eye me-2"></i>View Products</a></li>
-                                    <li>
-                                        <form action="{{ route('categories.destroy', ['category' => $category->id]) }}"
-                                            method="POST" onsubmit="return confirm('Are you sure?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="bi bi-trash me-2"></i>Delete
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @endcan
+
+                                    @if(!($category->gender === 'Unisex' && $category->id === \App\Models\Category::where('gender', 'Unisex')->orderBy('id')->first()->id))
+                                    @can('edit_category')
+                                        <li><button class="dropdown-item" data-bs-toggle="modal"
+                                                data-bs-target="#editCategoryModal{{ $category->id }}">
+                                                <i class="bi bi-pencil me-2"></i>Edit</button></li>
+                                    @endcan
+                                    @can('delete_category')
+                                        <li>
+                                            <form action="{{ route('categories.destroy', ['category' => $category->id]) }}"
+                                                method="POST" onsubmit="return confirm('Are you sure?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endcan
+                                    @endif
                                 </ul>
                             </div>
                         </div>
@@ -103,6 +130,7 @@
     </div>
 
     <!-- Add Category Modal -->
+     @can('create_category')
     <div class="modal fade" id="addCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -136,6 +164,47 @@
             </div>
         </div>
     </div>
+    @endcan
+
+    <!-- Edit Category Modals -->
+    @foreach($categories as $category)
+        <div class="modal fade" id="editCategoryModal{{ $category->id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ route('categories.update', $category->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Category</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Category Name</label>
+                                <input type="text" name="name" class="form-control" required value="{{ $category->name }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Gender</label>
+                                <select name="gender" class="form-control" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Men" {{ $category->gender == 'Men' ? 'selected' : '' }}>Men</option>
+                                    <option value="Women" {{ $category->gender == 'Women' ? 'selected' : '' }}>Women</option>
+                                    <option value="Kids & Baby" {{ $category->gender == 'Kids & Baby' ? 'selected' : '' }}>Kids &
+                                        Baby</option>
+                                    <option value="Unisex" {{ $category->gender == 'Unisex' ? 'selected' : '' }}>Unisex</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
     <!-- Pagination -->
     <div class="d-flex justify-content-center mt-4">
         {{ $categories->links() }}

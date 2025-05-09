@@ -7,7 +7,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 mb-0 text-gray-800">Users Management</h1>
             @can('create users')
-                <a href="{{ route('users.create') }}" class="btn btn-primary">
+                <a href="{{ route('users.create') }}" class="btn btn-secondary">
                     <i class="bi bi-plus-circle"></i> Create New User
                 </a>
             @endcan
@@ -32,13 +32,12 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-search"></i> Search
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-dark"><i class="bi bi-search me-2"> Search </i>
                             </button>
                             @if(request()->hasAny(['search', 'role']))
                                 <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                                    <i class="bi bi-x-circle"></i> Clear
+                                    <i class="bi bi-x-circle"></i>
                                 </a>
                             @endif
                         </div>
@@ -93,14 +92,17 @@
                                                 </a>
                                             @endcan
                                             @can('delete users')
-                                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger"
-                                                        onclick="return confirm('Are you sure you want to delete this user?')">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
+                                                @if($user->id !== Auth::id() && !($user->roles->contains('name', 'Super Admin') && $user->id === App\Models\User::whereHas('roles', function ($q) {
+                                                    $q->where('name', 'Super Admin'); })->orderBy('id')->first()->id))
+                                                    <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                            onclick="return confirm('Are you sure you want to delete this user?')">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             @endcan
                                         </div>
                                     </td>
@@ -116,21 +118,5 @@
     <div class="d-flex justify-content-center mt-4">
         {{ $users->withQueryString()->links() }}
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.querySelector('input[name="search"]');
-            const roleSelect = document.querySelector('select[name="role"]');
 
-            searchInput.addEventListener('input', function () {
-                if (this.value.length > 0) {
-                    roleSelect.value = '';
-                }
-            });
-
-            roleSelect.addEventListener('change', function () {
-                if (this.value) {
-                    searchInput.value = '';
-                }
-            });
-        });
 @endsection

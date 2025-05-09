@@ -353,6 +353,7 @@
                 </a>
             </li>
             <!-- User Management Section -->
+            @can('view_users' || 'view_roles')
             <li class="nav-item">
                 <a class="nav-link has-submenu {{ request()->routeIs('users.*') || request()->routeIs('roles.*') ? 'active' : '' }}"
                     href="#userManagement" data-bs-toggle="collapse">
@@ -361,6 +362,7 @@
                 </a>
                 <ul class="submenu collapse {{ request()->routeIs('users.*') || request()->routeIs('roles.*') ? 'show' : '' }}"
                     id="userManagement">
+                    @can('view_users')
                     <li>
                         <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}"
                             href="{{ route('users.index') }}">
@@ -368,6 +370,8 @@
                             Users
                         </a>
                     </li>
+                    @endcan
+                    @can('view_roles')
                     <li>
                         <a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
                             href="{{ route('roles.index') }}">
@@ -375,8 +379,11 @@
                             Roles & Permissions
                         </a>
                     </li>
+                    @endcan
                 </ul>
             </li>
+            @endcan
+            @can('view_orders')
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}"
                     href="{{ route('orders.index') }}">
@@ -384,6 +391,8 @@
                     Orders
                 </a>
             </li>
+            @endcan
+            @can('view_products')
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}"
                     href="{{ route('products.index') }}">
@@ -391,6 +400,8 @@
                     Products
                 </a>
             </li>
+            @endcan
+            @can('view_category')
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}"
                     href="{{ route('categories.index') }}">
@@ -398,6 +409,7 @@
                     Categories
                 </a>
             </li>
+            @endcan
 
         </ul>
     </div>

@@ -27,7 +27,19 @@ class CategoriesController extends Controller
 
     public function show(Category $category)
     {
-        $category->load('products');
+        $query = $category->products();
+
+        if (request('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%');
+        }
+
+        if (request('search_id')) {
+            $query->where('id', 'like', '%' . request('search_id') . '%');
+        }
+
+        $products = $query->get();
+        $category->setRelation('products', $products);
+
         return view('categories.show', compact('category'));
     }
 
@@ -44,21 +56,39 @@ class CategoriesController extends Controller
             ->with('success', 'Category created successfully');
     }
 
-    public function destroy(Category $category)
+    public function update(Request $request, Category $category)
     {
-        // لا نريد حذف فئة Unisex نفسها
-        if ($category->gender === 'Unisex') {
+        // Check if this is the first Unisex category
+        if ($category->gender === 'Unisex' && Category::where('gender', 'Unisex')->orderBy('id')->first()->id === $category->id) {
             return redirect()->route('categories.index')
-                ->with('error', 'Cannot delete Unisex category');
+                ->with('error', 'The default Unisex category cannot be modified.');
         }
 
-        // نقل المنتجات إلى فئة Unisex
-        $unisexCategory = Category::getUnisexCategory();
-        $category->products()->update(['category_id' => $unisexCategory->id]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'gender' => 'required|in:Men,Women,Kids & Baby,Unisex',
+        ]);
+
+        $category->update([
+            'name' => $request->name,
+            'gender' => $request->gender,
+        ]);
+
+        return redirect()->route('categories.index')
+            ->with('success', 'Category updated successfully');
+    }
+
+    public function destroy(Category $category)
+    {
+        // Check if this is the first Unisex category
+        if ($category->gender === 'Unisex' && Category::where('gender', 'Unisex')->orderBy('id')->first()->id === $category->id) {
+            return redirect()->route('categories.index')
+                ->with('error', 'The default Unisex category cannot be deleted.');
+        }
 
         $category->delete();
         return redirect()->route('categories.index')
-            ->with('success', 'Category deleted and products moved to Unisex category');
+            ->with('success', 'Category deleted successfully');
     }
 
     public function removeProduct(Category $category, Product $product)

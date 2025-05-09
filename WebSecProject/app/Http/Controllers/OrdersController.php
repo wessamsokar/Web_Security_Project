@@ -9,21 +9,46 @@ class OrdersController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::with('user', 'purchases.product');
+        $query = Order::with('user')->latest();
 
-        if ($request->search) {
-            $query->where('id', 'LIKE', "%{$request->search}%")
-                ->orWhereHas('user', function ($q) use ($request) {
-                    $q->where('name', 'LIKE', "%{$request->search}%");
-                });
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', '%' . $search . '%')
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%');
+                    });
+            });
         }
 
-        if ($request->status && $request->status != 'All Status') {
-            $query->where('status', $request->status);
+        // Status filter
+        if ($request->filled('status')) {
+            if ($request->status === 'Pending') {
+                $query->whereNotIn('status', ['Accept', 'Reject']);
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
-        $orders = $query->latest()->paginate(10);
+        // Date range filter
+        if ($request->filled('date_range')) {
+            switch ($request->date_range) {
+                case 'last_7_days':
+                    $query->whereDate('created_at', '>=', now()->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->whereDate('created_at', '>=', now()->subDays(30));
+                    break;
+                case 'this_month':
+                    $query->whereYear('created_at', now()->year)
+                        ->whereMonth('created_at', now()->month);
+                    break;
+            }
+        }
 
+        $orders = $query->paginate(10);
         return view('orders.index', compact('orders'));
     }
 

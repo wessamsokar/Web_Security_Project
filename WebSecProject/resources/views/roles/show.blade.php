@@ -86,12 +86,12 @@
                     <div class="input-group">
                         <input type="text" name="search" class="form-control" placeholder="Search by ID..."
                             value="{{ $search ?? '' }}">
-                        <button class="btn btn-primary" type="submit">
+                        <button class="btn btn-dark" type="submit">
                             <i class="bi bi-search"></i> Search
                         </button>
                         @if(request()->has('search'))
                             <a href="{{ route('roles.show', $role) }}" class="btn btn-secondary">
-                                <i class="bi bi-x-circle"></i> Clear
+                                <i class="bi bi-x-circle"></i>
                             </a>
                         @endif
                     </div>

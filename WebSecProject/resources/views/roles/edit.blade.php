@@ -7,9 +7,13 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Edit Role: {{ $role->name }}</h5>
+                    <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-arrow-left"></i> Back to Roles
+                    </a>
                 </div>
+
 
                 <div class="card-body">
                     @if($role->name === 'Super Admin')
@@ -81,7 +85,7 @@
                         <form action="{{ route('roles.edit', $role) }}" method="GET" class="mb-4">
                             <div class="input-group">
                                 <input type="text" name="search" class="form-control" placeholder="Search by ID..." value="{{ $search ?? '' }}">
-                                <button class="btn btn-primary" type="submit">
+                                <button class="btn btn-dark" type="submit">
                                     <i class="bi bi-search"></i> Search
                                 </button>
                                 @if(request()->has('search'))
