@@ -33,28 +33,30 @@ Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
 
+
 // Routes that require authentication
 Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Orders
-    Route::resource('orders', OrdersController::class);
-    Route::post('orders/{order}/status', [OrdersController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::resource('orders', OrdersController::class)->middleware(['check.permission:view_orders']);
+    Route::post('orders/{order}/status', [OrdersController::class, 'updateStatus'])->name('orders.updateStatus')->middleware(['check.permission:edit_orders']);
 
     // Categories
-    Route::resource('categories', CategoriesController::class);
+    Route::resource('categories', CategoriesController::class)->middleware(['check.permission:view_category']);
     Route::post('categories/{category}/remove-product/{product}', [CategoriesController::class, 'removeProduct'])
-        ->name('categories.remove-product');
+        ->name('categories.remove-product')->middleware(['check.permission:delete_category']);
 
     // Products
-    Route::resource('products', ProductController::class);
+    Route::resource('products', ProductController::class)->middleware(['check.permission:view_products']);
 
     // User Management
-    Route::resource('users', UserController::class);
+    Route::resource('users', UserController::class)->middleware(['check.permission:view_users']);
 
     // Roles
-    Route::resource('roles', RoleController::class);
-    Route::post('roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user');
+    Route::resource('roles', RoleController::class)->middleware(['check.permission:view_role']);
+    Route::post('roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user')
+        ->middleware(['check.permission:delete_role']);
 });
 
