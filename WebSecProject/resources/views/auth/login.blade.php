@@ -411,7 +411,7 @@
                 </div>
 
                 <div class="text-center mt-4">
-                    <a href="{{ route('password.request') }}" class="text-decoration-none text-muted">Get help signing in</a>
+                    <a href="" class="text-decoration-none text-muted">Forget Password?</a>
                 </div>
             </div>
         </div>

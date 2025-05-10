@@ -120,7 +120,9 @@
                                             <td>{{ $user->email }}</td>
                                             <td>{{ $user->created_at->format('Y-m-d') }}</td>
                                             <td>
-                                                @if($role->name !== 'Super Admin' || auth()->id() !== $user->id)
+                                                @if($role->name === 'Super Admin' && $user->id === 1)
+                                                    <span class="badge bg-warning">Cannot remove the first Super Admin</span>
+                                                @elseif($role->name !== 'Super Admin' || auth()->id() !== $user->id)
                                                     <form action="{{ route('roles.remove-user', $role) }}"
                                                           method="POST"
                                                           class="d-inline"
