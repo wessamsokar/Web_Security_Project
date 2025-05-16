@@ -31,4 +31,9 @@ class Product extends Model
     {
         return '$' . number_format($this->price, 2);
     }
+    public function productSizes()
+    {
+        return $this->hasMany(ProductSize::class);
+    }
+
 }

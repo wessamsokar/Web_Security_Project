@@ -8,6 +8,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\FavoritesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +38,8 @@ Route::get('/forgot-password', function () {
 
 // Routes that require authentication
 Route::middleware(['auth'])->group(function () {
+    Route::post('/cart/add', [CartController::class, 'store'])->name('cart.add');
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -49,7 +53,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('categories.remove-product')->middleware(['check.permission:delete_category']);
 
     // Products
-    Route::resource('products', ProductController::class)->middleware(['check.permission:view_products']);
+    Route::resource('products', ProductController::class);
+    Route::get('products', [ProductController::class, 'index'])->name('products.index');
+    Route::put('/products/{product}/category', [CategoriesController::class, 'updateProductCategory'])
+        ->name('products.updateCategory');
 
     // User Management
     Route::resource('users', UserController::class)->middleware(['check.permission:view_users']);
@@ -58,5 +65,16 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class)->middleware(['check.permission:view_role']);
     Route::post('roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user')
         ->middleware(['check.permission:delete_role']);
+
+    // Cart
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
+    Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+
+    // Favorites
+    Route::get('/favorites', [FavoritesController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites', [FavoritesController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{product_id}', [FavoritesController::class, 'destroy'])->name('favorites.destroy');
 });
 

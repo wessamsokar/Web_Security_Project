@@ -44,10 +44,23 @@
                                         <input type="number" name="price" class="form-control" step="0.01" required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Stock</label>
-                                        <input type="number" name="stock" class="form-control" required>
+                            </div>
+
+                           
+                            <div class="mb-3">
+                                <label class="form-label">Stock by Size</label>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label small">Small (S)</label>
+                                        <input type="number" name="sizes[1]" class="form-control" value="0" min="0">
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label small">Medium (M)</label>
+                                        <input type="number" name="sizes[2]" class="form-control" value="0" min="0">
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label small">Large (L)</label>
+                                        <input type="number" name="sizes[3]" class="form-control" value="0" min="0">
                                     </div>
                                 </div>
                             </div>

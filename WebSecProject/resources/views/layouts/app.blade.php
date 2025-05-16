@@ -1,3 +1,9 @@
+@php
+    use App\Models\Cart;
+    use App\Models\Favorite;
+    $cartCount = Cart::where('user_id', Auth::id())->count();
+    $favoriteCount = Favorite::where('user_id', Auth::id())->count();
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -158,7 +164,7 @@
         .submenu .nav-link {
             padding-left: 48px !important;
             font-size: 13px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 7);
         }
 
         .has-submenu {
@@ -315,6 +321,71 @@
             transform: scale(1.1);
         }
 
+        /* Add new styles for category nav links */
+        .category-nav .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .category-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #fff;
+            transition: width 0.3s ease;
+        }
+
+        .category-nav .nav-link:hover::after,
+        .category-nav .nav-link.active::after {
+            width: 100%;
+        }
+
+        .category-nav .nav-link:hover,
+        .category-nav .nav-link.active {
+            background: transparent !important;
+        }
+
+        /* Cart and Favorites icons */
+        .cart-icon,
+        .favorites-icon {
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 5px;
+        }
+
+        .cart-icon:hover,
+        .favorites-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .badge-floating {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 18px;
+            height: 18px;
+            line-height: 18px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 50%;
+            background: #ff4081;
+            color: white;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
         @yield('additional_styles')
     </style>
 </head>
@@ -322,16 +393,53 @@
 <body>
     <!-- Top Navbar -->
     <nav class="top-navbar">
-        <button class="menu-toggle" id="menuToggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
         <div class="logo-box">
             <span class="logo">Be</span>
             <span class="brand">Behance</span>
         </div>
-        <div class="ms-auto">
+        <button class="menu-toggle ms-4" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="category-nav ms-4">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ route('dashboard') }}">Home</a>
+                </li>
+                @can('buy_product')
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ request('gender') == 'Women' ? 'active' : '' }}"
+                            href="{{ route('products.index', ['gender' => 'Women']) }}">
+                            Women
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ request('gender') == 'Men' ? 'active' : '' }}"
+                            href="{{ route('products.index', ['gender' => 'Men']) }}">
+                            Men
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ request('gender') == 'Kids & Baby' ? 'active' : '' }}"
+                            href="{{ route('products.index', ['gender' => 'Kids & Baby']) }}">
+                            Kids & Baby
+                        </a>
+                    </li>
+                @endcan
+            </ul>
+        </div>
+        <div class="ms-auto d-flex align-items-center">
+            @can('buy_product')
+                <a href="{{ route('cart.index') }}" class="cart-icon me-3 text-decoration-none">
+                    <i class="bi bi-cart3 fs-5"></i>
+                    <span class="badge bg-danger badge-floating rounded-circle">{{ $cartCount }}</span>
+                </a>
+                <a href="{{ route('favorites.index') }}" class="favorites-icon me-4 text-decoration-none">
+                    <i class="bi bi-heart fs-5"></i>
+                    <span class="badge bg-danger badge-floating rounded-circle">{{ $favoriteCount }}</span>
+                </a>
+            @endcan
             <form action="{{ route('logout') }}" method="POST" class="d-inline">
                 @csrf
                 <button type="submit" class="btn text-white border-0">
@@ -354,61 +462,61 @@
             </li>
             <!-- User Management Section -->
             @can('view_users' || 'view_roles')
-            <li class="nav-item">
-                <a class="nav-link has-submenu {{ request()->routeIs('users.*') || request()->routeIs('roles.*') ? 'active' : '' }}"
-                    href="#userManagement" data-bs-toggle="collapse">
-                    <i class="bi bi-shield-lock me-2"></i>
-                    User Management
-                </a>
-                <ul class="submenu collapse {{ request()->routeIs('users.*') || request()->routeIs('roles.*') ? 'show' : '' }}"
-                    id="userManagement">
-                    @can('view_users')
-                    <li>
-                        <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}"
-                            href="{{ route('users.index') }}">
-                            <i class="bi bi-person me-2"></i>
-                            Users
-                        </a>
-                    </li>
-                    @endcan
-                    @can('view_roles')
-                    <li>
-                        <a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
-                            href="{{ route('roles.index') }}">
-                            <i class="bi bi-person-badge me-2"></i>
-                            Roles & Permissions
-                        </a>
-                    </li>
-                    @endcan
-                </ul>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link has-submenu {{ request()->routeIs('users.*') || request()->routeIs('roles.*') ? 'active' : '' }}"
+                        href="#userManagement" data-bs-toggle="collapse">
+                        <i class="bi bi-shield-lock me-2"></i>
+                        User Management
+                    </a>
+                    <ul class="submenu collapse {{ request()->routeIs('users.*') || request()->routeIs('roles.*') ? 'show' : '' }}"
+                        id="userManagement">
+                        @can('view_users')
+                            <li>
+                                <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}"
+                                    href="{{ route('users.index') }}">
+                                    <i class="bi bi-person me-2"></i>
+                                    Users
+                                </a>
+                            </li>
+                        @endcan
+                        @can('view_roles')
+                            <li>
+                                <a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
+                                    href="{{ route('roles.index') }}">
+                                    <i class="bi bi-person-badge me-2"></i>
+                                    Roles & Permissions
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
+                </li>
             @endcan
             @can('view_orders')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}"
-                    href="{{ route('orders.index') }}">
-                    <i class="bi bi-cart3 me-2"></i>
-                    Orders
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}"
+                        href="{{ route('orders.index') }}">
+                        <i class="bi bi-cart3 me-2"></i>
+                        Orders
+                    </a>
+                </li>
             @endcan
             @can('view_products')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}"
-                    href="{{ route('products.index') }}">
-                    <i class="bi bi-grid me-2"></i>
-                    Products
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}"
+                        href="{{ route('products.index') }}">
+                        <i class="bi bi-grid me-2"></i>
+                        Products
+                    </a>
+                </li>
             @endcan
             @can('view_category')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}"
-                    href="{{ route('categories.index') }}">
-                    <i class="bi bi-tag me-2"></i>
-                    Categories
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}"
+                        href="{{ route('categories.index') }}">
+                        <i class="bi bi-tag me-2"></i>
+                        Categories
+                    </a>
+                </li>
             @endcan
 
         </ul>
@@ -429,11 +537,22 @@
             const menuToggle = document.querySelector('#menuToggle');
             const submenuToggles = document.querySelectorAll('.has-submenu');
 
+            // Initialize sidebar state from localStorage
+            const sidebarExpanded = localStorage.getItem('sidebarExpanded') === 'true';
+            if (sidebarExpanded) {
+                sidebar.classList.add('expanded');
+                mainContent.classList.add('shifted');
+                menuToggle.classList.add('active');
+            }
+
             if (menuToggle) {
-                menuToggle.addEventListener('click', function () {
+                menuToggle.addEventListener('click', function (e) {
+                    e.stopPropagation(); // Prevent event from bubbling up
                     sidebar.classList.toggle('expanded');
                     mainContent.classList.toggle('shifted');
                     menuToggle.classList.toggle('active');
+                    // Save state to localStorage
+                    localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded'));
                 });
             }
 
@@ -456,6 +575,7 @@
                     sidebar.classList.remove('expanded');
                     mainContent.classList.remove('shifted');
                     menuToggle.classList.remove('active');
+                    localStorage.setItem('sidebarExpanded', false);
                 }
             });
         });

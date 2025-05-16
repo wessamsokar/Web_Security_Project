@@ -3,16 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Product;
 
-class Purchase extends Model
+class ProductSize extends Model
 {
-    protected $fillable = ['order_id', 'product_id', 'quantity', 'price', 'size_id'];
-
-    public function order()
-    {
-        return $this->belongsTo(Order::class);
-    }
+    protected $table = 'product_size';
+    protected $fillable = ['product_id', 'size_id', 'quantity'];
+    public $timestamps = false;
 
     public function product()
     {
