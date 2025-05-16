@@ -64,6 +64,8 @@
                             <thead>
                                 <tr>
                                     <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Size</th>
                                     <th>Price</th>
                                     <th>Quantity</th>
                                     <th class="text-end">Total</th>
@@ -76,10 +78,20 @@
                                             <div class="fw-bold">{{ $purchase->product->name }}</div>
                                             <small class="text-muted">ID: #{{ $purchase->product->id }}</small>
                                         </td>
+                                        <td>
+                                            <div>{{ $purchase->product->category->name }}</div>
+                                            <small class="text-muted">{{ $purchase->product->category->gender }}</small>
+                                        </td>
+                                        <td>
+                                            @if($purchase->size)
+                                                {{ $purchase->size->name }}
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
                                         <td>${{ number_format($purchase->price, 2) }}</td>
                                         <td>{{ $purchase->quantity }}</td>
-                                        <td class="text-end">${{ number_format($purchase->price * $purchase->quantity, 2) }}
-                                        </td>
+                                        <td class="text-end">${{ number_format($purchase->price * $purchase->quantity, 2) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

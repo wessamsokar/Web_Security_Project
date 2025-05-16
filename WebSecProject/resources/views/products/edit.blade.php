@@ -40,18 +40,25 @@
                                 </select>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Price</label>
-                                        <input type="number" name="price" class="form-control" value="{{ $product->price }}" step="0.01" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Stock</label>
-                                        <input type="number" name="stock" class="form-control" value="{{ $product->stock }}" required>
-                                    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Price</label>
+                                <input type="number" name="price" class="form-control" value="{{ $product->price }}" step="0.01" required>
+                            </div>
+
+                            <!-- Size-based stock management -->
+                            <div class="mb-3">
+                                <label class="form-label">Stock by Size</label>
+                                <div class="row">
+                                    @foreach($sizes as $size)
+                                        @php
+                                            $productSize = $product->productSizes->where('size_id', $size->id)->first();
+                                            $quantity = $productSize ? $productSize->quantity : 0;
+                                        @endphp
+                                        <div class="col-md-4 mb-2">
+                                            <label class="form-label small">{{ $size->name }}</label>
+                                            <input type="number" name="sizes[{{ $size->id }}]" class="form-control" value="{{ $quantity }}" min="0">
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
