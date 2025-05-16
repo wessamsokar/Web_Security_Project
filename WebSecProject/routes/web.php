@@ -10,6 +10,7 @@ use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\FavoritesController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,10 @@ Route::get('/register/complete', [AuthController::class, 'showCompleteForm'])->n
 Route::post('/register/complete', [AuthController::class, 'completeRegistration']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+
+Route::get('/profile', [ProfileController::class, 'show'])->name('profile')->middleware('auth');
+Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update')->middleware('auth');
+Route::put('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password')->middleware('auth');
 
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');

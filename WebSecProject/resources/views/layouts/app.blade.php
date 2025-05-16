@@ -453,6 +453,14 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <ul class="nav flex-column">
+            <!-- Profile Link -->
+            <li class="nav-item">
+                <a href="{{ route('profile') }}"
+                class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}">
+                    <i class="bi bi-person-circle me-2"></i> Profile
+                </a>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                     href="{{ route('dashboard') }}">
