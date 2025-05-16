@@ -8,6 +8,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\CustomerServiceController;
+use App\Http\Controllers\TicketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,5 +60,21 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class)->middleware(['check.permission:view_role']);
     Route::post('roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user')
         ->middleware(['check.permission:delete_role']);
+});
+
+// Customer Service Routes
+Route::middleware(['auth', 'check.permission:view_users'])->prefix('customer-service')->name('customer-service.')->group(function () {
+    Route::get('/dashboard', [CustomerServiceController::class, 'dashboard'])->name('dashboard');
+    Route::get('/users', [CustomerServiceController::class, 'userSearch'])->name('user-search');
+    Route::get('/users/{user}', [CustomerServiceController::class, 'userDetails'])->name('user-details');
+    Route::get('/users/{user}/create-ticket', [CustomerServiceController::class, 'createTicketForUser'])->name('create-ticket');
+});
+
+// Ticket System Routes
+Route::middleware(['auth'])->group(function () {
+    Route::resource('tickets', TicketController::class);
+    Route::post('tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
+    Route::post('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
+    Route::post('tickets/{ticket}/reopen', [TicketController::class, 'reopen'])->name('tickets.reopen');
 });
 
