@@ -54,6 +54,7 @@ class User extends Authenticatable
         return $this->first_name . ' ' . $this->last_name;
     }
 
+<<<<<<< HEAD
     public function cart()
     {
         return $this->hasMany(Cart::class);
@@ -62,5 +63,23 @@ class User extends Authenticatable
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
+=======
+    /**
+     * Get the orders for the user.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the tickets for the user.
+     */
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+>>>>>>> Youssef
     }
 }
+
+?>

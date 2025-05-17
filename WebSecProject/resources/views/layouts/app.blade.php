@@ -499,6 +499,7 @@
                     </ul>
                 </li>
             @endcan
+
             @can('view_orders')
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}"
@@ -508,6 +509,7 @@
                     </a>
                 </li>
             @endcan
+
             @can('view_products')
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}"
@@ -517,6 +519,7 @@
                     </a>
                 </li>
             @endcan
+
             @can('view_category')
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}"
@@ -526,6 +529,58 @@
                     </a>
                 </li>
             @endcan
+
+            <!-- Customer Support Tickets Section -->
+            @if(Auth::check() && Auth::user()->hasRole('Customer'))
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}"
+                    href="{{ route('tickets.index') }}">
+                    <i class="bi bi-headset me-2"></i>
+                    Support Tickets
+                </a>
+            </li>
+            @endif
+
+            <!-- Customer Service Section -->
+            @if(Auth::check() && Auth::user()->hasRole('Customer Service'))
+
+            <li class="nav-item">
+                <a class="nav-link has-submenu {{ request()->routeIs('customer-service.*') || request()->routeIs('tickets.*') ? 'active' : '' }}"
+                    href="#customerServiceMenu" data-bs-toggle="collapse">
+                    <i class="bi bi-headset me-2"></i>
+                    Customer Service
+                </a>
+                
+                <ul class="submenu collapse {{ request()->routeIs('customer-service.*') || request()->routeIs('tickets.*') ? 'show' : '' }}"
+                    id="customerServiceMenu">
+                    
+                    <li>
+                        <a class="nav-link {{ request()->routeIs('customer-service.dashboard') ? 'active' : '' }}"
+                            href="{{ route('customer-service.dashboard') }}">
+                            <i class="bi bi-speedometer2 me-2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}"
+                            href="{{ route('tickets.index') }}">
+                            <i class="bi bi-ticket-detailed me-2"></i>
+                            Support Tickets
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-link {{ request()->routeIs('customer-service.user-search') ? 'active' : '' }}"
+                            href="{{ route('customer-service.user-search') }}">
+                            <i class="bi bi-search me-2"></i>
+                            Find Customer
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            @endif
 
         </ul>
     </div>
@@ -537,8 +592,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
         document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.querySelector('#sidebar');
             const mainContent = document.querySelector('#mainContent');

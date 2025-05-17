@@ -49,6 +49,7 @@ class AuthController extends Controller
                 'name' => null,
 
             ]);
+            // Assign default role
             $user->assignRole('Customer');
 
             Auth::login($user);
