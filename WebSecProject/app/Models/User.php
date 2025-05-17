@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,7 +10,6 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
@@ -39,7 +37,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
      * @return array<string, string>
      */
@@ -54,7 +52,8 @@ class User extends Authenticatable
         return $this->first_name . ' ' . $this->last_name;
     }
 
-<<<<<<< HEAD
+    // Relationships
+
     public function cart()
     {
         return $this->hasMany(Cart::class);
@@ -63,7 +62,8 @@ class User extends Authenticatable
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
-=======
+    }
+
     /**
      * Get the orders for the user.
      */
@@ -78,8 +78,5 @@ class User extends Authenticatable
     public function tickets()
     {
         return $this->hasMany(Ticket::class);
->>>>>>> Youssef
     }
 }
-
-?>

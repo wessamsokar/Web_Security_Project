@@ -8,25 +8,21 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\CategoriesController;
-<<<<<<< HEAD
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\ProfileController;
-=======
 use App\Http\Controllers\CustomerServiceController;
 use App\Http\Controllers\TicketController;
->>>>>>> Youssef
 
 /*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------|
+| Web Routes                                                               |
+|--------------------------------------------------------------------------|
 */
 
 Route::get('/', function () {
     return redirect()->route('login'); // Redirect to login page
 });
-
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -36,7 +32,6 @@ Route::get('/register/complete', [AuthController::class, 'showCompleteForm'])->n
 Route::post('/register/complete', [AuthController::class, 'completeRegistration']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile')->middleware('auth');
 Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update')->middleware('auth');
 Route::put('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password')->middleware('auth');
@@ -44,7 +39,6 @@ Route::put('/profile/change-password', [ProfileController::class, 'changePasswor
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
-
 
 // Routes that require authentication
 Route::middleware(['auth'])->group(function () {
@@ -64,21 +58,17 @@ Route::middleware(['auth'])->group(function () {
 
     // Products
     Route::resource('products', ProductController::class);
-    Route::get('products', [ProductController::class, 'index'])->name('products.index');
-    Route::put('/products/{product}/category', [CategoriesController::class, 'updateProductCategory'])
-        ->name('products.updateCategory');
+    Route::put('/products/{product}/category', [CategoriesController::class, 'updateProductCategory'])->name('products.updateCategory');
 
     // User Management
     Route::resource('users', UserController::class)->middleware(['check.permission:view_users']);
 
     // Roles
     Route::resource('roles', RoleController::class)->middleware(['check.permission:view_role']);
-    Route::post('roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user')
-        ->middleware(['check.permission:delete_role']);
+    Route::post('roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user')->middleware(['check.permission:delete_role']);
 
     // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
     Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
     Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
@@ -103,4 +93,3 @@ Route::middleware(['auth'])->group(function () {
     Route::post('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
     Route::post('tickets/{ticket}/reopen', [TicketController::class, 'reopen'])->name('tickets.reopen');
 });
-
