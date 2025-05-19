@@ -51,12 +51,16 @@
 
                     <div class="mb-4">
                         <div class="d-flex gap-3 align-items-center">
-                            <div style="width: 120px">
-                                <input type="number" class="form-control rounded-0" id="quantity" value="1" min="1">
-                            </div>
-                            <button type="button" class="btn btn-dark rounded-0 px-5" onclick="addToCart()">
-                                Add to Cart
-                            </button>
+                            <form action="{{ route('cart.store') }}" method="POST" class="d-flex gap-3 align-items-center">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="size_id" id="selectedSizeInput">
+                                <div style="width: 120px">
+                                    <input type="number" name="quantity" class="form-control rounded-0" value="1" min="1">
+                                </div>
+                                <button type="submit" class="btn btn-dark rounded-0 px-5">Add to Cart</button>
+                            </form>
+
                         </div>
                     </div>
                 @else

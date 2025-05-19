@@ -42,7 +42,7 @@ Route::get('/forgot-password', function () {
 
 // Routes that require authentication
 Route::middleware(['auth'])->group(function () {
-    Route::post('/cart/add', [CartController::class, 'store'])->name('cart.add');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -71,6 +71,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
     Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/{id}/favorite', [CartController::class, 'moveToFavorites'])->name('cart.favorite');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('cart.checkout');
+        Route::post('/checkout', [App\Http\Controllers\CartController::class, 'processCheckout'])->name('cart.processCheckout');
+    });
+
+    Route::get('/orders/view', [OrdersController::class, 'view'])->name('orders.view')->middleware('auth');
+
 
     // Favorites
     Route::get('/favorites', [FavoritesController::class, 'index'])->name('favorites.index');
@@ -93,3 +105,23 @@ Route::middleware(['auth'])->group(function () {
     Route::post('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
     Route::post('tickets/{ticket}/reopen', [TicketController::class, 'reopen'])->name('tickets.reopen');
 });
+
+
+
+
+Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot_password');
+Route::post('/forgot-password', [AuthController::class, 'sendTemporaryPassword'])->name('send_temp_password');
+
+
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('login_with_google');
+Route::get('/auth/google/callback',[AuthController::class, 'handleGoogleCallback']);
+Route::get('verify', [AuthController::class, 'verify'])->name('verify');
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('login_with_google');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+Route::get('/auth/facebook', [AuthController::class, 'redirectToFacebook'])->name('login_with_facebook');
+Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCallback'])->name('handleFacebookCallback');
+Route::get('/auth/github/redirect', [AuthController::class, 'redirectToGithub'])->name('login_with_github');
+Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback']);
+Route::get('/auth/linkedin', [AuthController::class, 'redirectToLinkedin'])->name('login_with_linkedin');
+Route::get('/auth/linkedin/callback', [AuthController::class, 'handleLinkedinCallback']);
+Route::post('/login/certificate', [AuthController::class, 'loginWithCertificate'])->name('login.certificate');

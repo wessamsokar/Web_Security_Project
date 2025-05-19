@@ -409,6 +409,12 @@
                 </li>
                 @can('buy_product')
                     <li class="nav-item">
+                        <a class="nav-link text-white {{ request('gender') == 'items home' ? 'active' : '' }}"
+                            href="{{ route('products.index') }}">
+                            items home
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link text-white {{ request('gender') == 'Women' ? 'active' : '' }}"
                             href="{{ route('products.index', ['gender' => 'Women']) }}">
                             Women
@@ -468,6 +474,12 @@
                     Dashboard
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('orders.view') }}">
+                    <i class="bi bi-bag-check-fill"></i> My Orders
+                </a>
+            </li>
+
             <!-- User Management Section -->
             @can('view_users' || 'view_roles')
                 <li class="nav-item">
@@ -561,6 +573,7 @@
                             Dashboard
                         </a>
                     </li>
+                    
 
                     <li>
                         <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}"

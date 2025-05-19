@@ -83,4 +83,16 @@ class OrdersController extends Controller
         $order->delete();
         return redirect()->route('orders.index')->with('success', 'Order deleted successfully');
     }
+
+    public function view()
+    {
+        $user = Auth::user();
+        $orders = Order::with('purchases.product')
+                    ->where('user_id', $user->id)
+                    ->where('status', '!=', 'pending') // exclude cart
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        return view('orders.view', compact('orders'));
+    }
 }

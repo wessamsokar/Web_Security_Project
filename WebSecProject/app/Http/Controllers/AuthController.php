@@ -6,6 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Crypt;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use Laravel\Socialite\Facades\Socialite;
+
 
 class AuthController extends Controller
 {
@@ -167,4 +173,176 @@ class AuthController extends Controller
                 ]);
         }
     }
+
+
+    public function verify(Request $request) {
+
+        $decryptedData = json_decode(Crypt::decryptString($request->token), true);
+        $user = User::find($decryptedData['id']);
+        if(!$user) abort(401);
+        $user->email_verified_at = Carbon::now();
+        $user->save();
+        return view('users.verified', compact('user'));
+       }
+
+       public function forgotPassword()
+    {
+        return view('users.forgot_password');
+    }
+
+    public function sendTemporaryPassword(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        $tempPassword = Str::random(10);
+        $user->password = bcrypt($tempPassword);
+        $user->temp_password = true;
+        $user->save();
+
+        Mail::raw("Your temporary password is: {$tempPassword}", function ($message) use ($user) {
+            $message->to($user->email)
+                    ->subject('Temporary Password')
+                    ->from('mohamed102khaled@gmail.com', 'websec');
+        });
+
+        return redirect()->route('login')->with('success', 'Temporary password sent to your email.');
+    }
+
+       public function redirectToGoogle()
+       {
+           return Socialite::driver('google')->redirect();
+       }
+       
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+    
+            $user = User::firstOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'name' => $googleUser->getName(),
+                    'google_id' => $googleUser->getId(),
+                    'email_verified_at' => now(),
+                    'password' => bcrypt(Str::random(16)),
+                ]
+            );
+    
+            Auth::login($user);
+            return redirect('/');
+    
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'Google login failed: ' . $e->getMessage());
+        }
+    }
+       
+
+    public function redirectToFacebook()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    public function handleFacebookCallback()
+    {
+        try {
+            $facebookUser = Socialite::driver('facebook')->stateless()->user();
+
+            $user = User::firstOrCreate(
+                ['email' => $facebookUser->getEmail()],
+                [
+                    'name' => $facebookUser->getName(),
+                    'facebook_id' => $facebookUser->getId(),
+                    'email_verified_at' => now(),
+                    'password' => bcrypt(Str::random(16)),
+                ]
+            );
+
+            Auth::login($user);
+            return redirect('/');
+
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'Facebook login failed.');
+        }
+    }
+
+    public function redirectToGithub()
+    {
+        return Socialite::driver('github')->redirect();
+    }
+
+    public function handleGithubCallback()
+    {
+        try {
+            $githubUser = Socialite::driver('github')->stateless()->user();
+
+            $user = User::where('email', $githubUser->getEmail())->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'name' => $githubUser->getName() ?? $githubUser->getNickname(),
+                    'email' => $githubUser->getEmail(),
+                    'email_verified_at' => now(), // Automatically verify email
+                    'password' => bcrypt(uniqid()), // Random password
+                ]);
+                $user->assignRole('customer'); // Assign the 'customer' role
+            }
+
+            Auth::login($user);
+
+            return redirect('/')->with('success', 'Logged in successfully using GitHub!');
+        } catch (\Exception $e) {
+            return redirect('/login')->withErrors('Unable to login using GitHub.');
+        }
+    }
+
+    public function redirectToLinkedin()
+    {
+        return Socialite::driver('linkedin')->redirect();
+    }
+
+    public function handleLinkedinCallback()
+    {
+        try {
+            $linkedinUser = Socialite::driver('linkedin')->stateless()->user();
+
+            $user = User::firstOrCreate(
+                ['email' => $linkedinUser->getEmail()],
+                [
+                    'name' => $linkedinUser->getName(),
+                    'linkedin_id' => $linkedinUser->getId(),
+                    'email_verified_at' => now(),
+                    'password' => bcrypt(Str::random(16)),
+                ]
+            );
+
+            Auth::login($user);
+            return redirect('/');
+
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'LinkedIn login failed.');
+        }
+    }
+
+    public function loginWithCertificate(Request $request)
+    {
+        $email = emailFromLoginCertificate(); // Securely extract the email from the certificate
+
+        if ($email) {
+            $user = User::where('email', $email)->first();
+            if ($user) {
+                Auth::login($user);
+                return redirect()->intended('/');
+            } else {
+                return back()->withErrors(['email' => 'Certificate email not recognized.']);
+            }
+        }
+
+        return back()->withErrors(['certificate' => 'No valid certificate found.']);
+    }
+
+
 }
