@@ -81,7 +81,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/checkout', [App\Http\Controllers\CartController::class, 'processCheckout'])->name('cart.processCheckout');
     });
 
-    Route::get('/orders/view', [OrdersController::class, 'view'])->name('orders.view')->middleware('auth');
+    Route::get('view', [OrdersController::class, 'view'])->name('orders.view')->middleware('auth');
 
 
     // Favorites

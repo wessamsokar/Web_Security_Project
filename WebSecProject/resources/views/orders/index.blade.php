@@ -151,3 +151,4 @@
         {{ $orders->withQueryString()->links() }}
     </div>
 @endsection
+
