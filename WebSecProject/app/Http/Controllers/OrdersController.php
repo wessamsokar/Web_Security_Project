@@ -13,7 +13,7 @@ class OrdersController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::with('user')->latest();
+        $query = Order::with(['user', 'purchases'])->latest();
 
         // Search filter
         if ($request->filled('search')) {
@@ -78,8 +78,57 @@ class OrdersController extends Controller
 
     public function updateStatus(Request $request, Order $order)
     {
-        $order->update(['status' => $request->status]);
-        return redirect()->back()->with('success', 'Order status updated successfully');
+        $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        // If status is changed to 'Accept', deduct credit and update stock
+        if ($request->status === 'Accept' && $order->status !== 'Accept') {
+            $user = $order->user; // Assuming Order model has a relationship to User
+
+            // Deduct credit
+            // Assuming 'credit' is a column on the User model
+            if ($user && $user->credit >= $order->total) {
+                $user->credit -= $order->total;
+                $user->save();
+
+                // Load purchases and related product sizes
+                $order->load('purchases.product.productSizes');
+
+                foreach ($order->purchases as $purchase) {
+                    // Find the specific product size that was purchased
+                    $productSize = $purchase->product->productSizes()
+                        ->where('size_id', $purchase->size_id)
+                        ->first();
+
+                    if ($productSize) {
+                        // Decrease the quantity
+                        $productSize->quantity -= $purchase->quantity;
+                        $productSize->save();
+                    } else {
+                        // Handle case where product size is not found (optional)
+                    }
+                }
+
+                $order->update(['status' => $request->status]);
+                return redirect()->back()->with('success', 'Order accepted and credit deducted.');
+
+            } else {
+                // If user or insufficient credit, prevent status change and redirect with error
+                return redirect()->back()->with('error', 'Cannot accept order: Insufficient user credit.');
+            }
+        } elseif ($request->status === 'Reject' && $order->status !== 'Reject') {
+            // If status is changed to 'Reject' and was not previously 'Reject'
+            // You might want to add logic here to potentially return stock if it was held, etc.
+
+            $order->update(['status' => $request->status]);
+            return redirect()->back()->with('success', 'Order rejected.');
+
+        } else {
+            // For any other status change or if status is already the requested status
+            $order->update(['status' => $request->status]);
+            return redirect()->back()->with('success', 'Order status updated.');
+        }
     }
 
     public function destroy(Order $order)
@@ -92,10 +141,10 @@ class OrdersController extends Controller
     {
         $user = Auth::user();
         $orders = Order::with('purchases.product')
-                    ->where('user_id', $user->id)
-                    ->where('status', '!=', 'pending') // exclude cart
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+            ->where('user_id', $user->id)
+            ->where('status', '!=', 'pending') // exclude cart
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('orders.view', compact('orders'));
     }

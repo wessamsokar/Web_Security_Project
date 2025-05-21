@@ -32,7 +32,7 @@
 
                     <div class="mb-4">
                         <h6 class="font-weight-bold text-dark">Conversation</h6>
-                        
+
                         <div class="ticket-timeline">
                             @foreach($ticket->responses as $response)
                                 @if(!$response->is_internal || !auth()->user()->hasRole('Customer'))
@@ -64,7 +64,7 @@
                                     <label for="message" class="form-label">Reply</label>
                                     <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
                                 </div>
-                                
+
                                 @if(!auth()->user()->hasRole('Customer'))
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="checkbox" id="is_internal" name="is_internal" value="1">
@@ -73,14 +73,14 @@
                                         </label>
                                     </div>
                                 @endif
-                                
+
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-reply"></i> Send Reply
                                 </button>
                             </form>
                         @else
                             <div class="alert alert-secondary mt-4">
-                                <i class="bi bi-lock"></i> This ticket is closed. 
+                                <i class="bi bi-lock"></i> This ticket is closed.
                                 <form action="{{ route('tickets.reopen', $ticket) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-link text-primary p-0 ms-2">Reopen ticket</button>
@@ -135,7 +135,7 @@
                                     <option value="closed" {{ $ticket->status === 'closed' ? 'selected' : '' }}>Closed</option>
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="priority" class="form-label">Update Priority</label>
                                 <select class="form-select" id="priority" name="priority">
@@ -145,7 +145,7 @@
                                     <option value="urgent" {{ $ticket->priority === 'urgent' ? 'selected' : '' }}>Urgent</option>
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="assigned_to" class="form-label">Assign To</label>
                                 <select class="form-select" id="assigned_to" name="assigned_to">
@@ -163,7 +163,7 @@
                                 <textarea class="form-control" id="note" name="note" rows="2"></textarea>
                                 <small class="text-muted">This note will only be visible to staff</small>
                             </div>
-                            
+
                             <button type="submit" class="btn btn-primary w-100">
                                 <i class="bi bi-save"></i> Update Ticket
                             </button>
@@ -174,7 +174,7 @@
                         <hr>
                         <form action="{{ route('tickets.close', $ticket) }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-secondary w-100" 
+                            <button type="submit" class="btn btn-secondary w-100"
                                     onclick="return confirm('Are you sure you want to close this ticket?')">
                                 <i class="bi bi-x-circle"></i> Close Ticket
                             </button>
@@ -196,14 +196,14 @@
                             <div class="small text-muted">{{ $ticket->user->email }}</div>
                         </div>
                     </div>
-                    
+
                     @if(!auth()->user()->hasRole('Customer'))
                         <div class="mb-3">
                             <div class="text-dark mb-1">Customer ID: #{{ $ticket->user->id }}</div>
                             <div class="text-dark mb-1">Join Date: {{ $ticket->user->created_at->format('M d, Y') }}</div>
                             <div class="text-dark">Total Tickets: {{ $ticket->user->tickets->count() }}</div>
                         </div>
-                        
+
                         <a href="{{ route('customer-service.user-details', $ticket->user_id) }}" class="btn btn-info btn-sm w-100">
                             <i class="bi bi-person-badge"></i> View Customer Profile
                         </a>

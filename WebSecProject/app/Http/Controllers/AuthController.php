@@ -47,14 +47,21 @@ class AuthController extends Controller
             $validated = $request->validate([
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:8|confirmed',
+            ], [
+                'email.required' => 'Please enter your email address.',
+                'email.email' => 'Please enter a valid email address.',
+                'email.unique' => 'This email is already registered.',
+                'password.required' => 'Please enter a password.',
+                'password.min' => 'Password must be at least 8 characters.',
+                'password.confirmed' => 'Password confirmation does not match.',
             ]);
 
             $user = User::create([
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'name' => null,
-
             ]);
+
             // Assign default role
             $user->assignRole('Customer');
 
@@ -64,23 +71,16 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             \Log::error('Registration failed: ' . $e->getMessage());
 
-            // Check if error is due to duplicate email
             if ($e instanceof \Illuminate\Validation\ValidationException) {
-                $errors = $e->errors();
-                if (isset($errors['email']) && str_contains($errors['email'][0], 'taken')) {
-                    return back()
-                        ->withInput($request->except('password', 'password_confirmation'))
-                        ->withErrors([
-                            'email' => 'Email already exists'
-                        ]);
-                }
+                return back()
+                    ->withInput($request->except('password', 'password_confirmation'))
+                    ->withErrors($e->errors());
             }
 
-            // For other errors
             return back()
                 ->withInput($request->except('password', 'password_confirmation'))
                 ->withErrors([
-                    'email' => 'Registration failed'
+                    'email' => 'Registration failed. Please try again.'
                 ]);
         }
     }
@@ -216,12 +216,12 @@ class AuthController extends Controller
        {
            return Socialite::driver('google')->redirect();
        }
-       
+
     public function handleGoogleCallback()
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
-    
+
             $user = User::firstOrCreate(
                 ['email' => $googleUser->getEmail()],
                 [
@@ -231,15 +231,15 @@ class AuthController extends Controller
                     'password' => bcrypt(Str::random(16)),
                 ]
             );
-    
+
             Auth::login($user);
             return redirect('/');
-    
+
         } catch (\Exception $e) {
             return redirect('/login')->with('error', 'Google login failed: ' . $e->getMessage());
         }
     }
-       
+
 
     public function redirectToFacebook()
     {

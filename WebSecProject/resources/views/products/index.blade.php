@@ -74,64 +74,28 @@
                             <span class="badge bg-danger position-absolute top-0 end-0 m-2">Out of Stock</span>
                         @endif
                         @can('buy_product')
-                            <button class="btn btn-light position-absolute top-0 start-0 m-2 rounded-circle add-to-favorites"
-                                data-product-id="{{ $product->id }}" style="width: 35px; height: 35px; padding: 0;">
-                                <i class="bi bi-heart"></i>
-                            </button>
+                            <form action="{{ route('favorites.toggle') }}" method="POST"
+                                class="position-absolute top-0 start-0 m-2">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <button type="submit" class="btn btn-light rounded-circle favorite-btn"
+                                    style="width: 35px; height: 35px; padding: 0;" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ $product->is_favorited ? 'Remove from Favorites' : 'Add to Favorites' }}">
+                                    <i class="bi bi-heart{{ $product->is_favorited ? '-fill' : '' }}"
+                                        style="color: {{ $product->is_favorited ? '#ff4081' : '' }}"></i>
+                                </button>
+                            </form>
                         @endcan
                     </div>
                     <div class="card-body">
                         <h6 class="card-title mb-1">{{ $product->name }}</h6>
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="h5 mb-0">${{ number_format($product->price, 2) }}</span>
+                            @role('Customer')
                             <a href="{{ route('products.show', $product) }}" class="btn btn-primary btn-sm">
                                 <i class="bi bi-cart-plus me-1"></i>Buy
                             </a>
-                        </div>
-
-                        <!-- Buy Modal for each product -->
-                        <div class="modal fade" id="buyModal{{ $product->id }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Buy {{ $product->name }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Size</label>
-                                            <select class="form-select" id="size{{ $product->id }}">
-                                                @foreach($product->productSizes as $productSize)
-                                                    @if($productSize->quantity > 0)
-                                                        <option value="{{ $productSize->size_id }}">
-                                                            {{ $productSize->size->name }}
-                                                            ({{ $productSize->quantity }} available)
-                                                        </option>
-                                                    @endif
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Quantity</label>
-                                            <input type="number" class="form-control" id="quantity{{ $product->id }}" value="1"
-                                                min="1" max="{{ $totalStock }}">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="button" class="btn btn-primary" onclick="addToCart({
-                                                            id: {{ $product->id }},
-                                                            name: '{{ $product->name }}',
-                                                            price: {{ $product->price }},
-                                                            image: '{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300' }}',
-                                                            size: document.getElementById('size{{ $product->id }}').value,
-                                                            quantity: document.getElementById('quantity{{ $product->id }}').value
-                                                        })">
-                                            Add to Cart
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            @endrole
                         </div>
 
                         <div class="btn-group w-100">
@@ -165,72 +129,33 @@
     <div class="mt-4 d-flex justify-content-center">
         {{ $products->withQueryString()->links() }}
     </div>
+
+    <!-- Cart Sidebar -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartSidebar">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Shopping Cart</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="cart-items">
+                <!-- Cart items will be loaded here -->
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
     <script>
-        function addToCart(product) {
-            // إضافة المنتج للسلة
-            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            cart.push(product);
-            localStorage.setItem('cart', JSON.stringify(cart));
+        // Initialize Bootstrap tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
 
-            // تحديث عداد السلة وعرض محتوياتها
-            document.querySelector('.cart-icon .badge').textContent = cart.length;
+        // Handle favorites toggle
+        document.querySelectorAll('.favorite-btn').forEach(button => {
+            button.addEventListener('click', function (e) {
 
-            // إغلاق النافذة المنبثقة
-            let modal = bootstrap.Modal.getInstance(document.getElementById('buyModal' + product.id));
-            modal.hide();
-
-            // فتح السلة الجانبية
-            document.getElementById('cartSidebar').classList.add('expanded');
-
-            // تحديث محتوى السلة
-            updateCartItems();
-        }
-
-        function updateCartItems() {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const cartItems = document.querySelector('.cart-items');
-
-            if (cart.length === 0) {
-                cartItems.innerHTML = '<p class="text-center text-muted">Your cart is empty</p>';
-                return;
-            }
-
-            let html = '<div class="list-group list-group-flush">';
-            cart.forEach((item, index) => {
-                html += `
-                                <div class="list-group-item">
-                                    <div class="d-flex">
-                                        <img src="${item.image}" style="width: 50px; height: 50px; object-fit: contain;" class="me-3">
-                                        <div>
-                                            <h6 class="mb-0">${item.name}</h6>
-                                            <small class="text-muted">
-                                                $${item.price} - Size: ${item.size}
-                                                <br>Quantity: ${item.quantity}
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>`;
-            });
-            html += '</div>';
-            cartItems.innerHTML = html;
-        }
-
-        document.querySelectorAll('.add-to-favorites').forEach(button => {
-            button.addEventListener('click', function () {
-                const productId = this.dataset.productId;
-                this.querySelector('i').classList.toggle('bi-heart');
-                this.querySelector('i').classList.toggle('bi-heart-fill');
-                this.querySelector('i').style.color = this.querySelector('i').classList.contains('bi-heart-fill') ? '#ff4081' : '';
-
-                // Update favorites count in navbar
-                const favoriteBadge = document.querySelector('.favorites-icon .badge');
-                let currentCount = parseInt(favoriteBadge.textContent);
-                favoriteBadge.textContent = this.querySelector('i').classList.contains('bi-heart-fill') ?
-                    currentCount + 1 :
-                    currentCount - 1;
             });
         });
     </script>
