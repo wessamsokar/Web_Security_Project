@@ -14,6 +14,21 @@ class Order extends Model
         'payment_method'
     ];
 
+    // Accessor to get status color
+    public function getStatusColorAttribute()
+    {
+        switch ($this->status) {
+            case 'pending payment':
+                return 'warning';
+            case 'Accept':
+                return 'success';
+            case 'Reject':
+                return 'danger';
+            default:
+                return 'secondary';
+        }
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

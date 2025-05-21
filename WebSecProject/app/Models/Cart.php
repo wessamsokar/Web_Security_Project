@@ -17,4 +17,10 @@ class Cart extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    // Define the relationship with the Size model
+    public function size()
+    {
+        return $this->belongsTo(Size::class);
+    }
 }

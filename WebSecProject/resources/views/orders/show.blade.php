@@ -26,11 +26,6 @@
                         <label class="text-muted">Status</label>
                         <div><span class="badge bg-{{ $order->status_color }}">{{ $order->status }}</span></div>
                     </div>
-                    <div class="mb-3">
-                        <label class="text-muted">Payment Status</label>
-                        <div><span class="badge bg-{{ $order->payment_status_color }}">{{ $order->payment_status }}</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -91,7 +86,8 @@
                                         </td>
                                         <td>${{ number_format($purchase->price, 2) }}</td>
                                         <td>{{ $purchase->quantity }}</td>
-                                        <td class="text-end">${{ number_format($purchase->price * $purchase->quantity, 2) }}</td>
+                                        <td class="text-end">${{ number_format($purchase->price * $purchase->quantity, 2) }}
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -133,30 +129,3 @@
         </div>
     </div>
 @endsection
-
-@push('styles')
-    <style>
-        .timeline {
-            position: relative;
-            padding-left: 1.5rem;
-        }
-
-        .timeline-item {
-            position: relative;
-            padding-bottom: 1.5rem;
-        }
-
-        .timeline-marker {
-            position: absolute;
-            left: -0.75rem;
-            width: 1rem;
-            height: 1rem;
-            border-radius: 50%;
-        }
-
-        .timeline-content {
-            padding-left: 1rem;
-            border-left: 2px solid #dee2e6;
-        }
-    </style>
-@endpush

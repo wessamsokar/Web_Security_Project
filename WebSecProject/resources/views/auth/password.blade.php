@@ -4,147 +4,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enter Password - Clothing</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body,
-        html {
-            height: 100%;
-        }
-
-        .bg-login {
-            background: url('/login.jpg') center center/cover no-repeat;
-            min-height: 100vh;
-        }
-
-        .overlay {
-            background: rgba(60, 40, 30, 0.45);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-box {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo {
-            background: #232b2b;
-            color: #fff;
-            font-weight: bold;
-            font-size: 2.2rem;
-            border-radius: 6px;
-            padding: 8px 18px;
-            letter-spacing: 2px;
-        }
-
-        .brand {
-            color: #fff;
-            font-size: 2rem;
-            font-weight: 500;
-            letter-spacing: 1px;
-        }
-
-        .user-email {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        .user-email .email {
-            flex-grow: 1;
-            font-weight: 500;
-        }
-
-        @media (max-width: 991.98px) {
-
-            .bg-login,
-            .overlay {
-                min-height: 250px;
-            }
-        }
-    </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Enter Password - {{ config('app.name') }}</title>
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap-icons.css') }}" rel="stylesheet">
 </head>
 
-<body>
-    <div class="container-fluid g-0">
-        <div class="row g-0 min-vh-100">
-            <!-- Left Section -->
-            <div class="col-lg-6 d-none d-lg-block bg-login">
-                <div class="overlay w-100 h-100">
-                    <div class="logo-box">
-                        <span class="logo">Be</span>
-                        <span class="brand">Clothing</span>
+<body class="bg-light">
+    <div class="container-fluid min-vh-100">
+        <div class="row min-vh-100">
+            <!-- Left Side - Image Section -->
+            <div class="col-md-6 d-none d-md-block p-0">
+                <div class="position-relative h-100 bg-dark">
+                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="bg-white text-dark fw-bold fs-1 px-4 py-2 rounded-3 shadow">Be</span>
+                            <span class="text-white fw-bold fs-1">Behance</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!-- Right Section -->
-            <div class="col-lg-6 d-flex align-items-center justify-content-center bg-white">
-                <div class="w-100" style="max-width: 400px;">
-                    <h2 class="mb-3 fw-bold">Enter your password</h2>
 
-                    <div class="user-email">
-                        <i class="bi bi-person-circle fs-5"></i>
-                        <span class="email">user@example.com</span>
-                        <a href="#" class="text-decoration-none"><i class="bi bi-pencil"></i></a>
-                    </div>
+            <!-- Right Side - Password Form -->
+            <div class="col-md-6 d-flex align-items-center justify-content-center p-4">
+                <div class="card shadow-lg border-0 rounded-4 p-4" style="max-width: 480px; width: 100%;">
+                    <div class="card-body">
+                        <h2 class="fw-bold mb-2">Enter your password</h2>
+                        <p class="text-muted mb-4">{{ $email }}</p>
 
-                    <form>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <i class="bi bi-eye"></i>
-                                </button>
+                        <form method="POST" action="{{ route('login') }}">
+                            @csrf
+                            <input type="hidden" name="email" value="{{ $email }}">
+
+                            @if($errors->any())
+                                <div class="alert alert-danger mb-3">
+                                    <ul class="mb-0">
+                                        @foreach($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <input type="password"
+                                        class="form-control form-control-lg @error('password') is-invalid @enderror"
+                                        id="password"
+                                        name="password"
+                                        required
+                                        autocomplete="current-password"
+                                        placeholder="Enter your password">
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="rememberMe">
-                                <label class="form-check-label" for="rememberMe">
-                                    Stay signed in
-                                </label>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                                    <label class="form-check-label" for="remember">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a href="{{ route('password.request') }}" class="text-decoration-none">
+                                    Forgot password?
+                                </a>
                             </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Sign in</button>
-                    </form>
 
-                    <div class="mt-3">
-                        <a href="#" class="text-primary text-decoration-none small">Forgot password?</a>
-                    </div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-4">
+                                Sign in
+                            </button>
 
-                    <div class="mt-4 text-center text-secondary small">
-                        <a href="#" class="text-secondary text-decoration-none">Privacy Policy</a> &nbsp; | &nbsp;
-                        <a href="#" class="text-secondary text-decoration-none">Terms of Service</a>
+                            <div class="text-center">
+                                <a href="{{ route('login') }}" class="text-decoration-none">
+                                    <i class="bi bi-arrow-left"></i> Back to sign in
+                                </a>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        // Toggle password visibility
-        document.getElementById('togglePassword').addEventListener('click', function () {
-            const password = document.getElementById('password');
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
             const icon = this.querySelector('i');
-            if (password.type === 'password') {
-                password.type = 'text';
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
                 icon.classList.remove('bi-eye');
                 icon.classList.add('bi-eye-slash');
             } else {
-                password.type = 'password';
+                passwordInput.type = 'password';
                 icon.classList.remove('bi-eye-slash');
                 icon.classList.add('bi-eye');
             }

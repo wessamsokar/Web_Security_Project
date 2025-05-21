@@ -60,6 +60,22 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('products', ProductController::class);
     Route::put('/products/{product}/category', [CategoriesController::class, 'updateProductCategory'])->name('products.updateCategory');
 
+    // Favorites Routes
+    Route::get('/favorites', [ProductController::class, 'favorites'])->name('favorites.index');
+    Route::post('/favorites/toggle', [ProductController::class, 'toggleFavorite'])->name('favorites.toggle');
+    Route::delete('/favorites/{product_id}', [ProductController::class, 'removeFavorite'])->name('favorites.destroy');
+
+    // Cart Routes
+    Route::get('/cart', [ProductController::class, 'cartIndex'])->name('products.cartIndex');
+    Route::post('/cart/add', [ProductController::class, 'addToCart'])->name('cart.add');
+    Route::put('/cart/{cartItem}', [ProductController::class, 'updateCartItem'])->name('cart.update');
+    Route::delete('/cart/{cartItem}', [ProductController::class, 'removeCartItem'])->name('cart.destroy');
+    Route::post('/cart/{cartItem}/favorite', [ProductController::class, 'moveToFavoritesFromCart'])->name('cart.favorite');
+
+    // Checkout Routes
+    Route::get('/checkout', [ProductController::class, 'checkout'])->name('cart.checkout');
+    Route::post('/checkout', [ProductController::class, 'processCheckout'])->name('cart.processCheckout');
+
     // User Management
     Route::resource('users', UserController::class)->middleware(['check.permission:view_users']);
 
@@ -67,27 +83,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class)->middleware(['check.permission:view_role']);
     Route::post('roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user')->middleware(['check.permission:delete_role']);
 
-    // Cart
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
-    Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
-    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
-    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
-    Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::post('/cart/{id}/favorite', [CartController::class, 'moveToFavorites'])->name('cart.favorite');
-
-    Route::middleware('auth')->group(function () {
-        Route::get('/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('cart.checkout');
-        Route::post('/checkout', [App\Http\Controllers\CartController::class, 'processCheckout'])->name('cart.processCheckout');
-    });
-
     Route::get('view', [OrdersController::class, 'view'])->name('orders.view')->middleware('auth');
-
-
-    // Favorites
-    Route::get('/favorites', [FavoritesController::class, 'index'])->name('favorites.index');
-    Route::post('/favorites', [FavoritesController::class, 'store'])->name('favorites.store');
-    Route::delete('/favorites/{product_id}', [FavoritesController::class, 'destroy'])->name('favorites.destroy');
 });
 
 // Customer Service Routes
@@ -106,15 +102,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('tickets/{ticket}/reopen', [TicketController::class, 'reopen'])->name('tickets.reopen');
 });
 
-
-
-
 Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot_password');
 Route::post('/forgot-password', [AuthController::class, 'sendTemporaryPassword'])->name('send_temp_password');
 
-
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('login_with_google');
-Route::get('/auth/google/callback',[AuthController::class, 'handleGoogleCallback']);
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 Route::get('verify', [AuthController::class, 'verify'])->name('verify');
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('login_with_google');
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);

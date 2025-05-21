@@ -68,6 +68,7 @@
                             <th>Customer</th>
                             <th>Date</th>
                             <th>Total</th>
+                            <th>Items</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -90,27 +91,28 @@
                                     <small class="text-muted">{{ $order->created_at->format('g:i A') }}</small>
                                 </td>
                                 <td>${{ number_format($order->total, 2) }}</td>
+                                <td>{{ $order->purchases->sum('quantity') }}</td>
                                 @can('manage_orders')
-                                <td>
-                                    @if (!in_array($order->status, ['Accept', 'Reject']))
-                                        <form action="{{ route('orders.updateStatus', $order) }}" method="POST"
-                                            class="d-flex gap-1">
-                                            @csrf
-                                            <input type="hidden" name="status" value="">
-                                            <button type="submit" class="btn btn-sm btn-success"
-                                                onclick="event.preventDefault(); this.closest('form').status.value='Accept'; this.closest('form').submit();">
-                                                Accept
-                                            </button>
-                                            <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="event.preventDefault(); this.closest('form').status.value='Reject'; this.closest('form').submit();">
-                                                Reject
-                                            </button>
-                                        </form>
-                                    @else
-                                        <span
-                                            class="badge bg-{{ $order->status === 'Accept' ? 'success' : 'danger' }}">{{ $order->status }}</span>
-                                    @endif
-                                </td>
+                                    <td>
+                                        @if (!in_array($order->status, ['Accept', 'Reject']))
+                                            <form action="{{ route('orders.updateStatus', $order) }}" method="POST"
+                                                class="d-flex gap-1">
+                                                @csrf
+                                                <input type="hidden" name="status" value="">
+                                                <button type="submit" class="btn btn-sm btn-success"
+                                                    onclick="event.preventDefault(); this.closest('form').status.value='Accept'; this.closest('form').submit();">
+                                                    Accept
+                                                </button>
+                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                    onclick="event.preventDefault(); this.closest('form').status.value='Reject'; this.closest('form').submit();">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span
+                                                class="badge bg-{{ $order->status === 'Accept' ? 'success' : 'danger' }}">{{ $order->status }}</span>
+                                        @endif
+                                    </td>
                                 @endcan
 
 
@@ -118,20 +120,20 @@
                                 <td>
                                     <div class="btn-group">
                                         @can('view_orders')
-                                        <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-secondary">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
+                                            <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
                                         @endcan
 
                                         @can('delete_orders')
-                                        <form action="{{ route('orders.destroy', $order) }}" method="POST"
-                                            style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
+                                            <form action="{{ route('orders.destroy', $order) }}" method="POST"
+                                                style="display: inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
                                         @endcan
                                     </div>
                                 </td>
@@ -151,4 +153,3 @@
         {{ $orders->withQueryString()->links() }}
     </div>
 @endsection
-

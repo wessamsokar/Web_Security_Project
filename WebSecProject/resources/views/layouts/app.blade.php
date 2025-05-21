@@ -407,45 +407,45 @@
                 <li class="nav-item">
                     <a class="nav-link text-white" href="{{ route('dashboard') }}">Home</a>
                 </li>
-                @can('buy_product')
-                    <li class="nav-item">
-                        <a class="nav-link text-white {{ request('gender') == 'items home' ? 'active' : '' }}"
-                            href="{{ route('products.index') }}">
-                            items home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white {{ request('gender') == 'Women' ? 'active' : '' }}"
-                            href="{{ route('products.index', ['gender' => 'Women']) }}">
-                            Women
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white {{ request('gender') == 'Men' ? 'active' : '' }}"
-                            href="{{ route('products.index', ['gender' => 'Men']) }}">
-                            Men
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white {{ request('gender') == 'Kids & Baby' ? 'active' : '' }}"
-                            href="{{ route('products.index', ['gender' => 'Kids & Baby']) }}">
-                            Kids & Baby
-                        </a>
-                    </li>
-                @endcan
+                @role('Customer')
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ request('gender') == 'items home' ? 'active' : '' }}"
+                        href="{{ route('products.index') }}">
+                        items home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ request('gender') == 'Women' ? 'active' : '' }}"
+                        href="{{ route('products.index', ['gender' => 'Women']) }}">
+                        Women
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ request('gender') == 'Men' ? 'active' : '' }}"
+                        href="{{ route('products.index', ['gender' => 'Men']) }}">
+                        Men
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ request('gender') == 'Kids & Baby' ? 'active' : '' }}"
+                        href="{{ route('products.index', ['gender' => 'Kids & Baby']) }}">
+                        Kids & Baby
+                    </a>
+                </li>
+                @endrole
             </ul>
         </div>
         <div class="ms-auto d-flex align-items-center">
-            @can('buy_product')
-                <a href="{{ route('cart.index') }}" class="cart-icon me-3 text-decoration-none">
-                    <i class="bi bi-cart3 fs-5"></i>
-                    <span class="badge bg-danger badge-floating rounded-circle">{{ $cartCount }}</span>
-                </a>
-                <a href="{{ route('favorites.index') }}" class="favorites-icon me-4 text-decoration-none">
-                    <i class="bi bi-heart fs-5"></i>
-                    <span class="badge bg-danger badge-floating rounded-circle">{{ $favoriteCount }}</span>
-                </a>
-            @endcan
+            @role('Customer')
+            <a href="{{ route('products.cartIndex') }}" class="cart-icon me-3 text-decoration-none">
+                <i class="bi bi-cart3 fs-5"></i>
+                <span class="badge bg-danger badge-floating rounded-circle">{{ $cartCount }}</span>
+            </a>
+            <a href="{{ route('favorites.index') }}" class="favorites-icon me-4 text-decoration-none">
+                <i class="bi bi-heart fs-5"></i>
+                <span class="badge bg-danger badge-floating rounded-circle">{{ $favoriteCount }}</span>
+            </a>
+            @endrole
             <form action="{{ route('logout') }}" method="POST" class="d-inline">
                 @csrf
                 <button type="submit" class="btn text-white border-0">
@@ -461,24 +461,18 @@
         <ul class="nav flex-column">
             <!-- Profile Link -->
             <li class="nav-item">
-                <a href="{{ route('profile') }}"
-                class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}">
+                <a href="{{ route('profile') }}" class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}">
                     <i class="bi bi-person-circle me-2"></i> Profile
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                    href="{{ route('dashboard') }}">
-                    <i class="bi bi-speedometer2 me-2"></i>
-                    Dashboard
-                </a>
-            </li>
+            @role('Customer')
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('orders.view') }}">
                     <i class="bi bi-bag-check-fill"></i> My Orders
                 </a>
             </li>
+            @endrole
 
             <!-- User Management Section -->
             @can('view_users' || 'view_roles')
@@ -544,54 +538,54 @@
 
             <!-- Customer Support Tickets Section -->
             @if(Auth::check() && Auth::user()->hasRole('Customer'))
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}"
-                    href="{{ route('tickets.index') }}">
-                    <i class="bi bi-headset me-2"></i>
-                    Support Tickets
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}"
+                        href="{{ route('tickets.index') }}">
+                        <i class="bi bi-headset me-2"></i>
+                        Support Tickets
+                    </a>
+                </li>
             @endif
 
             <!-- Customer Service Section -->
             @if(Auth::check() && Auth::user()->hasRole('Customer Service'))
 
-            <li class="nav-item">
-                <a class="nav-link has-submenu {{ request()->routeIs('customer-service.*') || request()->routeIs('tickets.*') ? 'active' : '' }}"
-                    href="#customerServiceMenu" data-bs-toggle="collapse">
-                    <i class="bi bi-headset me-2"></i>
-                    Customer Service
-                </a>
-                
-                <ul class="submenu collapse {{ request()->routeIs('customer-service.*') || request()->routeIs('tickets.*') ? 'show' : '' }}"
-                    id="customerServiceMenu">
-                    
-                    <li>
-                        <a class="nav-link {{ request()->routeIs('customer-service.dashboard') ? 'active' : '' }}"
-                            href="{{ route('customer-service.dashboard') }}">
-                            <i class="bi bi-speedometer2 me-2"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    
+                <li class="nav-item">
+                    <a class="nav-link has-submenu {{ request()->routeIs('customer-service.*') || request()->routeIs('tickets.*') ? 'active' : '' }}"
+                        href="#customerServiceMenu" data-bs-toggle="collapse">
+                        <i class="bi bi-headset me-2"></i>
+                        Customer Service
+                    </a>
 
-                    <li>
-                        <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}"
-                            href="{{ route('tickets.index') }}">
-                            <i class="bi bi-ticket-detailed me-2"></i>
-                            Support Tickets
-                        </a>
-                    </li>
+                    <ul class="submenu collapse {{ request()->routeIs('customer-service.*') || request()->routeIs('tickets.*') ? 'show' : '' }}"
+                        id="customerServiceMenu">
 
-                    <li>
-                        <a class="nav-link {{ request()->routeIs('customer-service.user-search') ? 'active' : '' }}"
-                            href="{{ route('customer-service.user-search') }}">
-                            <i class="bi bi-search me-2"></i>
-                            Find Customer
-                        </a>
-                    </li>
-                </ul>
-            </li>
+                        <li>
+                            <a class="nav-link {{ request()->routeIs('customer-service.dashboard') ? 'active' : '' }}"
+                                href="{{ route('customer-service.dashboard') }}">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+
+
+                        <li>
+                            <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}"
+                                href="{{ route('tickets.index') }}">
+                                <i class="bi bi-ticket-detailed me-2"></i>
+                                Support Tickets
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link {{ request()->routeIs('customer-service.user-search') ? 'active' : '' }}"
+                                href="{{ route('customer-service.user-search') }}">
+                                <i class="bi bi-search me-2"></i>
+                                Find Customer
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
             @endif
 
@@ -605,8 +599,8 @@
         </div>
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.querySelector('#sidebar');
             const mainContent = document.querySelector('#mainContent');
