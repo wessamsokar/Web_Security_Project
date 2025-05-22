@@ -91,12 +91,12 @@
 
                             <div class="d-flex justify-content-center gap-3 mb-4">
                                 <a href="{{ route('login_with_google') }}" class="btn btn-outline-light border">
-                                    <i class="bi bi-google"></i>
+                                    <img src="https://www.google.com/favicon.ico" alt="Google" width="20">
                                 </a>
                                 <a href="{{ route('login_with_facebook') }}" class="btn btn-outline-light border">
                                     <i class="bi bi-facebook text-primary"></i>
                                 </a>
-                                <a href="{{ route('login_with_github') }}" class="btn btn-outline-light border">
+                                <a href="{{ route('login_with_github') }}" class="btn btn-outline border">
                                     <i class="bi bi-github"></i>
                                 </a>
                                 <a href="{{ route('login_with_linkedin') }}" class="btn btn-outline-light border">

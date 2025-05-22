@@ -29,16 +29,16 @@ class AuthController extends Controller
     {
         $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|string|min:8',
         ]);
+
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->with('error', 'Invalid email or password. Please try again.')
-            ->withInput($request->only('email'));
+        return back()->with('error', 'Please enter credentials or use a certificate.');
     }
 
     public function register(Request $request)
@@ -46,7 +46,7 @@ class AuthController extends Controller
         try {
             $validated = $request->validate([
                 'email' => 'required|email|unique:users',
-                'password' => 'required|min:8|confirmed',
+                'password' => 'required|min:8',
             ], [
                 'email.required' => 'Please enter your email address.',
                 'email.email' => 'Please enter a valid email address.',
@@ -201,6 +201,8 @@ class AuthController extends Controller
         $tempPassword = Str::random(10);
         $user->password = bcrypt($tempPassword);
         $user->temp_password = true;
+        $user->temp_password_expires_at = now()->addMinutes(30);
+
         $user->save();
 
         Mail::raw("Your temporary password is: {$tempPassword}", function ($message) use ($user) {
@@ -327,22 +329,25 @@ class AuthController extends Controller
         }
     }
 
-    public function loginWithCertificate(Request $request)
+    public function certificateLogin(Request $request)
     {
-        $email = emailFromLoginCertificate(); // Securely extract the email from the certificate
+        // Apache sets SSL_CLIENT_S_DN_Email or SSL_CLIENT_S_DN for client certs
+        $email = $_SERVER['SSL_CLIENT_S_DN_Email'] ?? null;
+        // Or extract from subject: $_SERVER['SSL_CLIENT_S_DN']
 
-        if ($email) {
-            $user = User::where('email', $email)->first();
-            if ($user) {
-                Auth::login($user);
-                return redirect()->intended('/');
-            } else {
-                return back()->withErrors(['email' => 'Certificate email not recognized.']);
-            }
+        if (!$email) {
+            return back()->with('error', 'Certificate does not contain an email.');
         }
 
-        return back()->withErrors(['certificate' => 'No valid certificate found.']);
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return back()->with('error', 'No user found for this certificate.');
+        }
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('dashboard'))->with('success', 'Logged in with certificate!');
     }
-
-
 }

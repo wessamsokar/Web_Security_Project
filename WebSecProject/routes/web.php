@@ -13,7 +13,6 @@ use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CustomerServiceController;
 use App\Http\Controllers\TicketController;
-
 /*
 |--------------------------------------------------------------------------|
 | Web Routes                                                               |
@@ -116,4 +115,4 @@ Route::get('/auth/github/redirect', [AuthController::class, 'redirectToGithub'])
 Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback']);
 Route::get('/auth/linkedin', [AuthController::class, 'redirectToLinkedin'])->name('login_with_linkedin');
 Route::get('/auth/linkedin/callback', [AuthController::class, 'handleLinkedinCallback']);
-Route::post('/login/certificate', [AuthController::class, 'loginWithCertificate'])->name('login.certificate');
+Route::post('/certificate-login', [AuthController::class, 'certificateLogin'])->name('certificate_login');
