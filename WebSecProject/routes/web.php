@@ -10,6 +10,7 @@ use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CustomerServiceController;
 use App\Http\Controllers\TicketController;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +19,13 @@ use App\Http\Controllers\TicketController;
 */
 
 Route::get('/', function () {
-    return redirect()->route('login'); // Redirect to login page
+     $email = emailFromLoginCertificate();
+     if ($email && !auth()->user()) {
+
+        $user = User::where( 'email' , $email)->first();
+        if ($user) Auth::login($user);
+     }
+     return view('welcome'); // Redirect to login page
 });
 
 

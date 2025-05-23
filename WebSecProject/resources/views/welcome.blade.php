@@ -2,7 +2,7 @@
 @section('title', 'Welcome to Fashion Store Dashboard')
 @section('content')
     <!-- Welcome Header -->
-    <div class="text-center mb-5">
+    <div class="text-center mb-5">  
         <h1 class="display-4 mb-3">Welcome to Fashion Store Dashboard</h1>
         <p class="lead text-muted">Manage your fashion store with our powerful dashboard</p>
     </div>
