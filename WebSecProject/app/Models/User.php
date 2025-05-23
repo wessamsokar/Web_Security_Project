@@ -25,6 +25,9 @@ class User extends Authenticatable
         'last_name',
         'birth_date',
         'temp_password',
+        'facebook_id',
+        'facebook_token',
+        'facebook_refresh_token'
     ];
 
     /**
