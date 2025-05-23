@@ -30,6 +30,9 @@ class User extends Authenticatable
         'remember_token',
         'email_verified_at',
         'temp_password',
+        'facebook_id',
+        'facebook_token',
+        'facebook_refresh_token'
     ];
 
     /**

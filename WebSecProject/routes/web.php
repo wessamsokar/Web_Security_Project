@@ -8,8 +8,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CustomerServiceController;
 use App\Http\Controllers\TicketController;
@@ -37,8 +35,6 @@ Route::put('/profile/change-password', [ProfileController::class, 'changePasswor
 
 // Routes that require authentication
 Route::middleware(['auth'])->group(function () {
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

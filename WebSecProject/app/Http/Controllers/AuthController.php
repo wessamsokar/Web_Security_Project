@@ -173,17 +173,19 @@ class AuthController extends Controller
     }
 
 
-    public function verify(Request $request) {
+    public function verify(Request $request)
+    {
 
         $decryptedData = json_decode(Crypt::decryptString($request->token), true);
         $user = User::find($decryptedData['id']);
-        if(!$user) abort(401);
+        if (!$user)
+            abort(401);
         $user->email_verified_at = Carbon::now();
         $user->save();
         return view('users.verified', compact('user'));
-       }
+    }
 
-       public function forgotPassword()
+    public function forgotPassword()
     {
         return view('auth.forgot_password');
     }
@@ -205,17 +207,17 @@ class AuthController extends Controller
 
         Mail::raw("Your temporary password is: {$tempPassword}", function ($message) use ($user) {
             $message->to($user->email)
-                    ->subject('Temporary Password')
-                    ->from('mohamed102khaled@gmail.com', 'websec');
+                ->subject('Temporary Password')
+                ->from('mohamed102khaled@gmail.com', 'websec');
         });
 
         return redirect()->route('login')->with('success', 'Temporary password sent to your email.');
     }
 
-       public function redirectToGoogle()
-       {
-           return Socialite::driver('google')->redirect();
-       }
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
 
     public function handleGoogleCallback()
     {
@@ -252,22 +254,37 @@ class AuthController extends Controller
             $facebookUser = Socialite::driver('facebook')->stateless()->user();
 
             $user = User::firstOrCreate(
-                ['email' => $facebookUser->getEmail()],
+                ['facebook_id' => $facebookUser->getId()],
                 [
                     'name' => $facebookUser->getName(),
-                    'facebook_id' => $facebookUser->getId(),
-                    'email_verified_at' => now(),
+                    'email' => $facebookUser->getEmail(),
                     'password' => bcrypt(Str::random(16)),
+                    'facebook_token' => $facebookUser->token,
+                    'facebook_refresh_token' => $facebookUser->refreshToken ?? null,
+                    'email_verified_at' => now()
                 ]
             );
 
+            // Assign customer role if not already assigned
+            if (!$user->hasRole('customer')) {
+                $user->assignRole('customer');
+            }
+
             Auth::login($user);
-            return redirect('/');
+
+            return redirect()->route('dashboard')->with('success', 'Successfully logged in with Facebook!');
 
         } catch (\Exception $e) {
-            return redirect('/login')->with('error', 'Facebook login failed.');
+            \Log::error('Facebook login error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect('/login')->with('error', 'Facebook login failed: ' . $e->getMessage());
         }
     }
+
 
     public function redirectToGithub()
     {
@@ -326,7 +343,7 @@ class AuthController extends Controller
             return redirect('/login')->with('error', 'LinkedIn login failed.');
         }
     }
-    
+
     public function loginWithCertificate(Request $request)
     {
         // Extract certificate subject from the server environment
@@ -350,4 +367,5 @@ class AuthController extends Controller
 
         return back()->withErrors(['certificate' => 'No valid certificate found.']);
     }
+
 }
