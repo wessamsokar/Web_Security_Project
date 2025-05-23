@@ -35,10 +35,6 @@ Route::get('/profile', [ProfileController::class, 'show'])->name('profile')->mid
 Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update')->middleware('auth');
 Route::put('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password')->middleware('auth');
 
-Route::get('/forgot-password', function () {
-    return view('auth.forgot-password');
-})->name('password.request');
-
 // Routes that require authentication
 Route::middleware(['auth'])->group(function () {
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
@@ -101,6 +97,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('tickets/{ticket}/reopen', [TicketController::class, 'reopen'])->name('tickets.reopen');
 });
 
+
 Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot_password');
 Route::post('/forgot-password', [AuthController::class, 'sendTemporaryPassword'])->name('send_temp_password');
 
@@ -115,4 +112,4 @@ Route::get('/auth/github/redirect', [AuthController::class, 'redirectToGithub'])
 Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback']);
 Route::get('/auth/linkedin', [AuthController::class, 'redirectToLinkedin'])->name('login_with_linkedin');
 Route::get('/auth/linkedin/callback', [AuthController::class, 'handleLinkedinCallback']);
-Route::post('/certificate-login', [AuthController::class, 'certificateLogin'])->name('certificate_login');
+Route::post('/login/certificate', [AuthController::class, 'loginWithCertificate'])->name('login.certificate');

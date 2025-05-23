@@ -108,21 +108,18 @@
                                     <i class="bi bi-linkedin text-primary"></i>
                                 </a>
                             </div>
-                            <form action="{{ route('certificate_login') }}" method="POST">
-                                @csrf
-                                <div class="d-grid mb-3">
-                                    <button type="submit" class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2">
-                                        <img src="https://img.icons8.com/ios-filled/20/000000/certificate.png" alt="Certificate Icon">
-                                        <span>Certificate</span>
-                                    </button>
-                                </div>
-                            </form>
-
-
+                            
                             <div class="text-center">
-                                <a href="{{ route('forgot_password') }}" class="text-decoration-none text-muted">
-                                    Forget Password?
-                                </a>
+                                <a href="{{ route('forgot_password') }}" class="text-decoration-none">Forgot Password?</a>
+                            </div>
+                        </form>
+                        <form action="{{ route('login.certificate') }}" method="POST">
+                            @csrf
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2">
+                                    <img src="https://img.icons8.com/ios-filled/20/000000/certificate.png" alt="Certificate Icon">
+                                    <span>Certificate</span>
+                                </button>
                             </div>
                         </form>
                     </div>

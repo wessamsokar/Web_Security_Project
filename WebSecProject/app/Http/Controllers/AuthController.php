@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
-
+use App\Mail\VerificationEmail;
 
 class AuthController extends Controller
 {
@@ -32,18 +32,25 @@ class AuthController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            // Block login if not verified
+            if (is_null($user->email_verified_at)) {
+                Auth::logout();
+                return back()->withInput()->withErrors(['email' => 'Your email is not verified.']);
+            }
+
             $request->session()->regenerate();
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->with('error', 'Please enter credentials or use a certificate.');
+        return back()->with('error', 'Please enter valid credentials or use a certificate.');
     }
 
     public function register(Request $request)
     {
-        try {
+        
             $validated = $request->validate([
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:8',
@@ -67,22 +74,13 @@ class AuthController extends Controller
 
             Auth::login($user);
 
+            $title = "Verification Link";
+            $token = Crypt::encryptString(json_encode(['id' => $user->id, 'email' => $user->email]));
+            $link = route("verify", ['token' => $token]);
+            Mail::to($user->email)->send(new VerificationEmail($link, $user->name));
+
             return redirect()->route('register.complete');
-        } catch (\Exception $e) {
-            \Log::error('Registration failed: ' . $e->getMessage());
-
-            if ($e instanceof \Illuminate\Validation\ValidationException) {
-                return back()
-                    ->withInput($request->except('password', 'password_confirmation'))
-                    ->withErrors($e->errors());
-            }
-
-            return back()
-                ->withInput($request->except('password', 'password_confirmation'))
-                ->withErrors([
-                    'email' => 'Registration failed. Please try again.'
-                ]);
-        }
+        
     }
 
     public function logout(Request $request)
@@ -187,7 +185,7 @@ class AuthController extends Controller
 
        public function forgotPassword()
     {
-        return view('users.forgot_password');
+        return view('auth.forgot_password');
     }
 
     public function sendTemporaryPassword(Request $request)
@@ -328,26 +326,28 @@ class AuthController extends Controller
             return redirect('/login')->with('error', 'LinkedIn login failed.');
         }
     }
-
-    public function certificateLogin(Request $request)
+    
+    public function loginWithCertificate(Request $request)
     {
-        // Apache sets SSL_CLIENT_S_DN_Email or SSL_CLIENT_S_DN for client certs
-        $email = $_SERVER['SSL_CLIENT_S_DN_Email'] ?? null;
-        // Or extract from subject: $_SERVER['SSL_CLIENT_S_DN']
+        // Extract certificate subject from the server environment
+        $clientCert = $_SERVER['SSL_CLIENT_S_DN'] ?? null;
 
-        if (!$email) {
-            return back()->with('error', 'Certificate does not contain an email.');
+        if ($clientCert) {
+            // Example: parse email from DN string like: "emailAddress=user@example.com,CN=User Name,O=Example Org"
+            preg_match('/emailAddress=([^,]+)/', $clientCert, $matches);
+            $email = $matches[1] ?? null;
+
+            if ($email) {
+                $user = User::where('email', $email)->first();
+                if ($user) {
+                    Auth::login($user);
+                    return redirect()->intended('/');
+                } else {
+                    return back()->withErrors(['email' => 'Certificate email not recognized.']);
+                }
+            }
         }
 
-        $user = User::where('email', $email)->first();
-
-        if (!$user) {
-            return back()->with('error', 'No user found for this certificate.');
-        }
-
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard'))->with('success', 'Logged in with certificate!');
+        return back()->withErrors(['certificate' => 'No valid certificate found.']);
     }
 }
