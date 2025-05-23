@@ -11,7 +11,6 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CustomerServiceController;
 use App\Http\Controllers\TicketController;
-
 /*
 |--------------------------------------------------------------------------|
 | Web Routes                                                               |
@@ -33,10 +32,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile')->middleware('auth');
 Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update')->middleware('auth');
 Route::put('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password')->middleware('auth');
-
-Route::get('/forgot-password', function () {
-    return view('auth.forgot-password');
-})->name('password.request');
 
 // Routes that require authentication
 Route::middleware(['auth'])->group(function () {
@@ -97,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
     Route::post('tickets/{ticket}/reopen', [TicketController::class, 'reopen'])->name('tickets.reopen');
 });
+
 
 Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot_password');
 Route::post('/forgot-password', [AuthController::class, 'sendTemporaryPassword'])->name('send_temp_password');

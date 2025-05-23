@@ -56,24 +56,26 @@
                                 </div>
                             @endif
 
+                            <!-- Email Field (NO required) -->
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email address</label>
                                 <input type="email"
-                                    class="form-control form-control-lg @error('email') is-invalid @enderror" id="email"
-                                    name="email" value="{{ old('email') }}" required autocomplete="email"
-                                    placeholder="example@domain.com">
+                                    class="form-control form-control-lg @error('email') is-invalid @enderror"
+                                    id="email" name="email" value="{{ old('email') }}"
+                                    autocomplete="email" placeholder="example@domain.com">
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
+                            <!-- Password Field (NO required) -->
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
                                 <div class="input-group">
                                     <input type="password"
                                         class="form-control form-control-lg @error('password') is-invalid @enderror"
-                                        id="password" name="password" required autocomplete="current-password"
-                                        placeholder="Enter your password">
+                                        id="password" name="password"
+                                        autocomplete="current-password" placeholder="Enter your password">
                                     <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -82,6 +84,7 @@
                                     @enderror
                                 </div>
                             </div>
+
 
                             <button type="submit" class="btn btn-primary btn-lg w-100 mb-4">
                                 Sign in
@@ -98,24 +101,25 @@
                                 <a href="{{ route('login_with_facebook') }}" class="btn btn-outline-light border">
                                     <i class="bi bi-facebook text-primary"></i>
                                 </a>
-                                <a href="{{ route('login_with_github') }}" class="btn btn-outline-light border">
+                                <a href="{{ route('login_with_github') }}" class="btn btn-outline border">
                                     <i class="bi bi-github"></i>
                                 </a>
                                 <a href="{{ route('login_with_linkedin') }}" class="btn btn-outline-light border">
                                     <i class="bi bi-linkedin text-primary"></i>
                                 </a>
-                                <form method="POST" action="{{ route('login.certificate') }}" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-outline-light border">
-                                        <i class="bi bi-file-earmark-lock"></i>
-                                    </button>
-                                </form>
                             </div>
-
+                            
                             <div class="text-center">
-                                <a href="{{ route('forgot_password') }}" class="text-decoration-none text-muted">
-                                    Forget Password?
-                                </a>
+                                <a href="{{ route('forgot_password') }}" class="text-decoration-none">Forgot Password?</a>
+                            </div>
+                        </form>
+                        <form action="{{ route('login.certificate') }}" method="POST">
+                            @csrf
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2">
+                                    <img src="https://img.icons8.com/ios-filled/20/000000/certificate.png" alt="Certificate Icon">
+                                    <span>Certificate</span>
+                                </button>
                             </div>
                         </form>
                     </div>

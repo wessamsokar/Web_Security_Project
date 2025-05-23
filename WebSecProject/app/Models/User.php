@@ -24,6 +24,11 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'birth_date',
+        'google_id',
+        'google_token',
+        'google_refresh_token',
+        'remember_token',
+        'email_verified_at',
         'temp_password',
         'facebook_id',
         'facebook_token',
@@ -45,11 +50,13 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'birth_date' => 'date',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
     public function getFullNameAttribute()
     {
