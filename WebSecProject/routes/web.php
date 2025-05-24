@@ -19,13 +19,13 @@ use App\Models\User;
 */
 
 Route::get('/', function () {
-     $email = emailFromLoginCertificate();
-     if ($email && !auth()->user()) {
+    //  $email = emailFromLoginCertificate();
+    //  if ($email && !auth()->user()) {
 
-        $user = User::where( 'email' , $email)->first();
-        if ($user) Auth::login($user);
-     }
-     return view('welcome'); // Redirect to login page
+    //     $user = User::where( 'email' , $email)->first();
+    //     if ($user) Auth::login($user);
+    //  }
+    return redirect()->route('login'); // Redirect to login page
 });
 
 
@@ -85,3 +85,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('tickets/{ticket}/reopen', [TicketController::class, 'reopen'])->name('tickets.reopen');
 });
 
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('login_with_google');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+Route::get('/auth/github', [AuthController::class, 'redirectToGithub'])->name('login_with_github');
+Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback']);
+
+Route::get('/auth/microsoft', [AuthController::class, 'redirectToMicrosoft'])->name('login_with_microsoft');
+Route::get('/auth/microsoft/callback', [AuthController::class, 'handleMicrosoftCallback']);
+
+
+// Route::get('/auth/redirect', function () {
+//     return view('auth.redirect');
+// })->name('auth.redirect');

@@ -1,3 +1,5 @@
+<?php use Illuminate\Support\Facades\Auth; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -515,7 +517,7 @@
             });
         });
     </script>
-    @yield('scripts')
+@yield('scripts')
 </body>
 
 </html>

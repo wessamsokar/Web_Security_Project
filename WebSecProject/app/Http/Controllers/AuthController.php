@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
+
 
 class AuthController extends Controller
 {
@@ -41,13 +45,13 @@ class AuthController extends Controller
             $validated = $request->validate([
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:8|confirmed',
+                'name' => 'required|string|max:255',
             ]);
 
             $user = User::create([
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'name' => null,
-
+                'name' => $validated['name'],
             ]);
             // Assign default role
             $user->assignRole('Customer');
@@ -56,7 +60,7 @@ class AuthController extends Controller
 
             return redirect()->route('register.complete');
         } catch (\Exception $e) {
-            \Log::error('Registration failed: ' . $e->getMessage());
+            Log::error('Registration failed: ' . $e->getMessage());
 
             // Check if error is due to duplicate email
             if ($e instanceof \Illuminate\Validation\ValidationException) {
@@ -151,7 +155,7 @@ class AuthController extends Controller
 
             return redirect('/')->with('success', 'Profile completed successfully!');
         } catch (\Exception $e) {
-            \Log::error('Profile completion failed: ' . $e->getMessage());
+            Log::error('Profile completion failed: ' . $e->getMessage());
 
             // Return specific validation errors if they exist
             if ($e instanceof \Illuminate\Validation\ValidationException) {
@@ -167,4 +171,134 @@ class AuthController extends Controller
                 ]);
         }
     }
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = \Socialite::driver('google')->user();
+
+            // Try to find user by google_id first
+            $user = User::where('google_id', $googleUser->getId())->first();
+
+            if (!$user) {
+                // If not found, try to find by email
+                $user = User::where('email', $googleUser->getEmail())->first();
+
+                if ($user) {
+                    // Update existing user with google_id and tokens
+                    $user->google_id = $googleUser->getId();
+                    $user->google_token = $googleUser->token;
+                    $user->google_refresh_token = $googleUser->refreshToken;
+                    $user->save();
+                } else {
+                    // Create new user
+                    $user = User::create([
+                        'name' => $googleUser->getName(),
+                        'email' => $googleUser->getEmail(),
+                        'google_id' => $googleUser->getId(),
+                        'google_token' => $googleUser->token,
+                        'google_refresh_token' => $googleUser->refreshToken,
+                        // You may want to set a random password or leave it null if allowed
+                        'password' => \Hash::make(Str::random(16)),
+                    ]);
+                }
+            }
+
+            Auth::login($user);
+            // Assign role only if user is new or doesn't have it
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('Google login failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect('/login')->with('error', 'Google login failed.' . $e->getMessage());
+        }
+    }
+
+    public function redirectToGithub()
+    {
+        return Socialite::driver('github')->redirect();
+    }
+
+    public function handleGithubCallback()
+    {
+        try {
+            $githubUser = Socialite::driver('github')->user();
+
+            $user = User::where('email', $githubUser->getEmail())->first();
+
+            if ($user) {
+                $user->github_id = $githubUser->getId();
+                $user->github_token = $githubUser->token;
+                $user->save();
+            } else {
+                $user = User::create([
+                    'name' => $githubUser->getName() ?? $githubUser->getNickname(),
+                    'email' => $githubUser->getEmail(),
+                    'github_id' => $githubUser->getId(),
+                    'github_token' => $githubUser->token,
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+            }
+
+            Auth::login($user);
+
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('GitHub login failed: ' . $e->getMessage());
+            return redirect('/login')->with('error', 'GitHub login failed.');
+        }
+    }
+
+
+    public function redirectToMicrosoft()
+    {
+        return Socialite::driver('microsoft')->redirect();
+    }
+
+    public function handleMicrosoftCallback()
+    {
+        try {
+            $microsoftUser = Socialite::driver('microsoft')->user();
+
+            $user = User::where('email', $microsoftUser->getEmail())->first();
+
+            if ($user) {
+                $user->microsoft_id = $microsoftUser->getId();
+                $user->microsoft_token = $microsoftUser->token;
+                $user->save();
+            } else {
+                $user = User::create([
+                    'name' => $microsoftUser->getName() ?? $microsoftUser->getNickname(),
+                    'email' => $microsoftUser->getEmail(),
+                    'microsoft_id' => $microsoftUser->getId(),
+                    'microsoft_token' => $microsoftUser->token,
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+            }
+
+            Auth::login($user);
+
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('Microsoft login failed: ' . $e->getMessage());
+            return redirect('/login')->with('error', 'Microsoft login failed.');
+        }
+    }
+
+    
 }
