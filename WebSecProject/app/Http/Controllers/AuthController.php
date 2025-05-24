@@ -166,4 +166,109 @@ class AuthController extends Controller
                 ]);
         }
     }
+<<<<<<< Updated upstream
+=======
+
+
+    public function verify(Request $request)
+    {
+
+        $decryptedData = json_decode(Crypt::decryptString($request->token), true);
+        $user = User::find($decryptedData['id']);
+        if (!$user)
+            abort(401);
+        $user->email_verified_at = Carbon::now();
+        $user->save();
+        return view('users.verified', compact('user'));
+    }
+
+    public function forgotPassword()
+    {
+        return view('auth.forgot_password');
+    }
+
+    public function sendTemporaryPassword(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        $tempPassword = Str::random(10);
+        $user->password = bcrypt($tempPassword);
+        $user->temp_password = true;
+        $user->temp_password_expires_at = now()->addMinutes(30);
+
+        $user->save();
+
+        Mail::raw("Your temporary password is: {$tempPassword}", function ($message) use ($user) {
+            $message->to($user->email)
+                ->subject('Temporary Password')
+                ->from('mohamed102khaled@gmail.com', 'websec');
+        });
+
+        return redirect()->route('login')->with('success', 'Temporary password sent to your email.');
+    }
+
+
+    public function handleMicrosoftCallback()
+    {
+        try {
+            $microsoftUser = Socialite::driver('microsoft')->user();
+
+            $user = User::where('email', $microsoftUser->getEmail())->first();
+
+            if ($user) {
+                $user->microsoft_id = $microsoftUser->getId();
+                $user->microsoft_token = $microsoftUser->token;
+                $user->save();
+            } else {
+                $user = User::create([
+                    'name' => $microsoftUser->getName() ?? $microsoftUser->getNickname(),
+                    'email' => $microsoftUser->getEmail(),
+                    'microsoft_id' => $microsoftUser->getId(),
+                    'microsoft_token' => $microsoftUser->token,
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+            }
+
+            Auth::login($user);
+
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('Microsoft login failed: ' . $e->getMessage());
+            return redirect('/login')->with('error', 'Microsoft login failed.');
+        }
+    }
+
+    public function loginWithCertificate(Request $request)
+    {
+        // Extract certificate subject from the server environment
+        $clientCert = $_SERVER['SSL_CLIENT_S_DN'] ?? null;
+
+        if ($clientCert) {
+            // Example: parse email from DN string like: "emailAddress=user@example.com,CN=User Name,O=Example Org"
+            preg_match('/emailAddress=([^,]+)/', $clientCert, $matches);
+            $email = $matches[1] ?? null;
+
+            if ($email) {
+                $user = User::where('email', $email)->first();
+                if ($user) {
+                    Auth::login($user);
+                    return redirect()->intended('/');
+                } else {
+                    return back()->withErrors(['email' => 'Certificate email not recognized.']);
+                }
+            }
+        }
+
+        return back()->withErrors(['certificate' => 'No valid certificate found.']);
+    }
+
+>>>>>>> Stashed changes
 }

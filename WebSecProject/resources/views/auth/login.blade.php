@@ -361,10 +361,46 @@
                             <button type="button" class="password-toggle" @click="showPassword = !showPassword">
                                 <i class="bi" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
                             </button>
+<<<<<<< Updated upstream
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+=======
+
+                            <div class="text-center mb-4">
+                                <span class="text-muted">Or</span>
+                            </div>
+
+                            <div class="d-flex justify-content-center gap-3 mb-4">
+                                <a href="{{ route('login_with_google') }}" class="btn btn-outline-light border">
+                                    <img src="https://www.google.com/favicon.ico" alt="Google" width="20">
+                                </a>
+                                <a href="{{ route('login_with_facebook') }}" class="btn btn-outline-light border">
+                                    <i class="bi bi-facebook text-primary"></i>
+                                </a>
+                                <a href="{{ route('login_with_github') }}" class="btn btn-outline border">
+                                    <i class="bi bi-github"></i>
+                                </a>
+                                <a href="{{ route('login_with_microsoft') }}" class="social-button" title="Sign in with Microsoft">
+                                    <i class="bi bi-microsoft"></i>
+                                </a>
+                            </div>
+                            
+                            <div class="text-center">
+                                <a href="{{ route('forgot_password') }}" class="text-decoration-none">Forgot Password?</a>
+                            </div>
+                        </form>
+                        <form action="{{ route('login.certificate') }}" method="POST">
+                            @csrf
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2">
+                                    <img src="https://img.icons8.com/ios-filled/20/000000/certificate.png" alt="Certificate Icon">
+                                    <span>Certificate</span>
+                                </button>
+                            </div>
+                        </form>
+>>>>>>> Stashed changes
                     </div>
 
                     <div class="mb-4">
