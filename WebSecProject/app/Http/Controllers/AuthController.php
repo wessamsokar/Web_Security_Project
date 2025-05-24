@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
 use App\Mail\VerificationEmail;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthController extends Controller
 {
