@@ -396,6 +396,50 @@ class AuthController extends Controller
             return redirect('/login')->with('error', 'Facebook login failed.');
         }
     }
+    public function redirectToDiscord()
+    {
+        return Socialite::driver('discord')->scopes(['identify', 'email'])->redirect();
+    }
+
+
+public function handleDiscordCallback()
+{
+    try {
+        $discordUser = Socialite::driver('discord')->user();
+
+        // Discord may not return email if not verified
+        if (!$discordUser->getEmail()) {
+            return redirect('/')->with('error', 'Discord account does not have a verified email.');
+        }
+
+        $user = User::where('email', $discordUser->getEmail())->first();
+
+        if ($user) {
+            $user->discord_id = $discordUser->getId();
+            $user->discord_token = $discordUser->token;
+            $user->save();
+        } else {
+            $user = User::create([
+                'name' => $discordUser->getName() ?? $discordUser->getNickname(),
+                'email' => $discordUser->getEmail(),
+                'discord_id' => $discordUser->getId(),
+                'discord_token' => $discordUser->token,
+                'password' => Hash::make(\Str::random(16)),
+            ]);
+        }
+
+        Auth::login($user);
+
+        if (!$user->hasRole('Customer')) {
+            $user->assignRole('Customer');
+        }
+
+        return redirect('/');
+    } catch (\Exception $e) {
+        Log::error('Discord login failed: ' . $e->getMessage());
+        return redirect('/')->with('error', 'Discord login failed.');
+    }
+}
 
 }
 >>>>>>> Stashed changes

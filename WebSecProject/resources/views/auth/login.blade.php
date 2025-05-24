@@ -392,6 +392,10 @@
                                 <i class="bi bi-facebook"></i>
                             </button>
 
+                            <a href="{{ route('login_with_discord') }}" class="social-button" title="Sign in with Discord">
+                                <i class="bi bi-discord"></i>
+                            </a>
+
                             
                             
                             <div class="text-center">

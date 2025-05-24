@@ -97,3 +97,6 @@ Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallbac
 
 Route::get('/auth/facebook', [AuthController::class, 'redirectToFacebook'])->name('login_with_facebook');
 Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
+
+Route::get('/auth/discord', [AuthController::class, 'redirectToDiscord'])->name('login_with_discord');
+Route::get('/auth/discord/callback', [AuthController::class, 'handleDiscordCallback']);
