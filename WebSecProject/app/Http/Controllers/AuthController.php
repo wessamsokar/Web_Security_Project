@@ -166,6 +166,44 @@ class AuthController extends Controller
                 ]);
         }
     }
+    public function redirectToGithub()
+    {
+        return Socialite::driver('github')->redirect();
+    }
+
+    public function handleGithubCallback()
+    {
+        try {
+            $githubUser = Socialite::driver('github')->user();
+
+            $user = User::where('email', $githubUser->getEmail())->first();
+
+            if ($user) {
+                $user->github_id = $githubUser->getId();
+                $user->github_token = $githubUser->token;
+                $user->save();
+            } else {
+                $user = User::create([
+                    'name' => $githubUser->getName() ?? $githubUser->getNickname(),
+                    'email' => $githubUser->getEmail(),
+                    'github_id' => $githubUser->getId(),
+                    'github_token' => $githubUser->token,
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+            }
+
+            Auth::login($user);
+
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('GitHub login failed: ' . $e->getMessage());
+            return redirect('/login')->with('error', 'GitHub login failed.');
+        }
+    }
 <<<<<<< Updated upstream
 =======
 
@@ -269,6 +307,6 @@ class AuthController extends Controller
 
         return back()->withErrors(['certificate' => 'No valid certificate found.']);
     }
-
+    
 >>>>>>> Stashed changes
 }

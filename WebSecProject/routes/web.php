@@ -97,3 +97,5 @@ Route::get('/auth/linkedin', [AuthController::class, 'redirectToLinkedin'])->nam
 Route::get('/auth/linkedin/callback', [AuthController::class, 'handleLinkedinCallback']);
 Route::post('/login/certificate', [AuthController::class, 'loginWithCertificate'])->name('login.certificate');
 >>>>>>> Stashed changes
+Route::get('/auth/github', [AuthController::class, 'redirectToGithub'])->name('login_with_github');
+Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback']);

@@ -386,6 +386,9 @@
                                     <i class="bi bi-microsoft"></i>
                                 </a>
                             </div>
+                            <a href="{{ route('login_with_github') }}" class="social-button github" title="Sign in with GitHub">
+                                <i class="bi bi-github"></i>
+                            </a>
                             
                             <div class="text-center">
                                 <a href="{{ route('forgot_password') }}" class="text-decoration-none">Forgot Password?</a>
