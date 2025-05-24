@@ -102,13 +102,13 @@
                                     <i class="bi bi-facebook text-primary"></i>
                                 </a>
                                 <a href="{{ route('login_with_github') }}" class="btn btn-outline border">
-                                    <i class="bi bi-microsoft"></i>
+                                    <i class="bi bi-github"></i>
                                 </a>
                                 <a href="{{ route('login_with_linkedin') }}" class="btn btn-outline-light border">
                                     <i class="bi bi-linkedin text-primary"></i>
                                 </a>
                             </div>
-                            
+
                             <div class="text-center">
                                 <a href="{{ route('forgot_password') }}" class="text-decoration-none">Forgot Password?</a>
                             </div>

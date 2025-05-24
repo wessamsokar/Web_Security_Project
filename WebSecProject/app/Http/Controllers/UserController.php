@@ -68,7 +68,7 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
-            'birth_date' => $validated['birth_date'],
+            'birth_date' => $validated['birth_date'] ? date('Y-m-d', strtotime($validated['birth_date'])) : null,
         ]);
 
         // Get the actual Role models and assign them
@@ -116,7 +116,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
-            'birth_date' => $validated['birth_date'],
+            'birth_date' => $validated['birth_date'] ? date('Y-m-d', strtotime($validated['birth_date'])) : null,
         ];
 
         if (!empty($validated['password'])) {

@@ -47,10 +47,8 @@ class AuthController extends Controller
 
         return back()->with('error', 'Please enter valid credentials or use a certificate.');
     }
-
     public function register(Request $request)
     {
-        
             $validated = $request->validate([
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:8',
@@ -80,7 +78,7 @@ class AuthController extends Controller
             Mail::to($user->email)->send(new VerificationEmail($link, $user->name));
 
             return redirect()->route('register.complete');
-        
+
     }
 
     public function logout(Request $request)
@@ -234,8 +232,13 @@ class AuthController extends Controller
                 ]
             );
 
+            // Assign Customer role if not already assigned
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+
             Auth::login($user);
-            return redirect('/');
+            return redirect()->route('dashboard')->with('success', 'Successfully logged in with Google!');
 
         } catch (\Exception $e) {
             return redirect('/login')->with('error', 'Google login failed: ' . $e->getMessage());
@@ -302,15 +305,15 @@ class AuthController extends Controller
                 $user = User::create([
                     'name' => $githubUser->getName() ?? $githubUser->getNickname(),
                     'email' => $githubUser->getEmail(),
-                    'email_verified_at' => now(), // Automatically verify email
-                    'password' => bcrypt(uniqid()), // Random password
+                    'email_verified_at' => now(),
+                    'password' => bcrypt(uniqid()),
                 ]);
-                $user->assignRole('customer'); // Assign the 'customer' role
+                $user->assignRole('Customer');
             }
 
             Auth::login($user);
 
-            return redirect('/')->with('success', 'Logged in successfully using GitHub!');
+            return redirect()->route('dashboard')->with('success', 'Successfully logged in with GitHub!');
         } catch (\Exception $e) {
             return redirect('/login')->withErrors('Unable to login using GitHub.');
         }

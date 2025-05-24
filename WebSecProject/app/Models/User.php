@@ -54,8 +54,21 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'birth_date' => 'date',
         ];
     }
+
+    /**
+     * The attributes that should be treated as dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'email_verified_at',
+        'birth_date',
+        'created_at',
+        'updated_at'
+    ];
 
     public function getFullNameAttribute()
     {

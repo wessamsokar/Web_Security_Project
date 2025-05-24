@@ -42,7 +42,8 @@
                                     </tr>
                                     <tr>
                                         <th>Birth Date</th>
-                                        <td>{{ $user->birth_date ? $user->birth_date->format('F d, Y') : 'Not set' }}</td>
+                                        <td>{{ $user->birth_date ? date('F d, Y', strtotime($user->birth_date)) : 'Not set' }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th>Roles</th>
