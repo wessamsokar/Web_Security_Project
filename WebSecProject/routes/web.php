@@ -19,15 +19,8 @@ use App\Models\User;
 */
 
 Route::get('/', function () {
-    //  $email = emailFromLoginCertificate();
-    //  if ($email && !auth()->user()) {
-
-    //     $user = User::where( 'email' , $email)->first();
-    //     if ($user) Auth::login($user);
-    //  }
-    return redirect()->route('login'); // Redirect to login page
-});
-
+    return view('welcome'); // or your home view
+})->middleware('auth');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -94,7 +87,9 @@ Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallbac
 Route::get('/auth/microsoft', [AuthController::class, 'redirectToMicrosoft'])->name('login_with_microsoft');
 Route::get('/auth/microsoft/callback', [AuthController::class, 'handleMicrosoftCallback']);
 
+Route::get('/auth/discord', [AuthController::class, 'redirectToDiscord'])->name('login_with_discord');
+Route::get('/auth/discord/callback', [AuthController::class, 'handleDiscordCallback']);
 
-// Route::get('/auth/redirect', function () {
-//     return view('auth.redirect');
-// })->name('auth.redirect');
+Route::get('/auth/facebook', [AuthController::class, 'redirectToFacebook'])->name('login_with_facebook');
+Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
+

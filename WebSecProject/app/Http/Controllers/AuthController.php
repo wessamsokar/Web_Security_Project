@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class AuthController extends Controller
@@ -180,7 +181,7 @@ class AuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = \Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->user();
 
             // Try to find user by google_id first
             $user = User::where('google_id', $googleUser->getId())->first();
@@ -203,21 +204,24 @@ class AuthController extends Controller
                         'google_id' => $googleUser->getId(),
                         'google_token' => $googleUser->token,
                         'google_refresh_token' => $googleUser->refreshToken,
-                        // You may want to set a random password or leave it null if allowed
-                        'password' => \Hash::make(Str::random(16)),
+                        'password' => Hash::make(Str::random(16)),
                     ]);
                 }
+            } else {
+                // Always update tokens for returning users
+                $user->google_token = $googleUser->token;
+                $user->google_refresh_token = $googleUser->refreshToken;
+                $user->save();
             }
 
             Auth::login($user);
-            // Assign role only if user is new or doesn't have it
             if (!$user->hasRole('Customer')) {
                 $user->assignRole('Customer');
             }
             return redirect('/');
         } catch (\Exception $e) {
             Log::error('Google login failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return redirect('/login')->with('error', 'Google login failed.' . $e->getMessage());
+            return redirect('/')->with('error', 'Google login failed.' . $e->getMessage());
         }
     }
 
@@ -256,7 +260,7 @@ class AuthController extends Controller
             return redirect('/');
         } catch (\Exception $e) {
             Log::error('GitHub login failed: ' . $e->getMessage());
-            return redirect('/login')->with('error', 'GitHub login failed.');
+            return redirect('/')->with('error', 'GitHub login failed.');
         }
     }
 
@@ -296,9 +300,91 @@ class AuthController extends Controller
             return redirect('/');
         } catch (\Exception $e) {
             Log::error('Microsoft login failed: ' . $e->getMessage());
-            return redirect('/login')->with('error', 'Microsoft login failed.');
+            return redirect('/')->with('error', 'Microsoft login failed.');
         }
     }
 
-    
+    public function redirectToDiscord()
+    {
+        return Socialite::driver('discord')->scopes(['identify', 'email'])->redirect();
+    }
+
+
+public function handleDiscordCallback()
+{
+    try {
+        $discordUser = Socialite::driver('discord')->user();
+
+        // Discord may not return email if not verified
+        if (!$discordUser->getEmail()) {
+            return redirect('/')->with('error', 'Discord account does not have a verified email.');
+        }
+
+        $user = User::where('email', $discordUser->getEmail())->first();
+
+        if ($user) {
+            $user->discord_id = $discordUser->getId();
+            $user->discord_token = $discordUser->token;
+            $user->save();
+        } else {
+            $user = User::create([
+                'name' => $discordUser->getName() ?? $discordUser->getNickname(),
+                'email' => $discordUser->getEmail(),
+                'discord_id' => $discordUser->getId(),
+                'discord_token' => $discordUser->token,
+                'password' => Hash::make(\Str::random(16)),
+            ]);
+        }
+
+        Auth::login($user);
+
+        if (!$user->hasRole('Customer')) {
+            $user->assignRole('Customer');
+        }
+
+        return redirect('/');
+    } catch (\Exception $e) {
+        Log::error('Discord login failed: ' . $e->getMessage());
+        return redirect('/')->with('error', 'Discord login failed.');
+    }
+}
+
+    public function facebookRedirect()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    public function facebookCallback()
+    {
+        try {
+            $facebookUser = Socialite::driver('facebook')->user();
+
+            $user = User::where('email', $facebookUser->getEmail())->first();
+
+            if ($user) {
+                $user->facebook_id = $facebookUser->getId();
+                $user->facebook_token = $facebookUser->token;
+                $user->save();
+            } else {
+                $user = User::create([
+                    'name' => $facebookUser->getName() ?? $facebookUser->getNickname(),
+                    'email' => $facebookUser->getEmail(),
+                    'facebook_id' => $facebookUser->getId(),
+                    'facebook_token' => $facebookUser->token,
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+            }
+
+            Auth::login($user);
+
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('Facebook login failed: ' . $e->getMessage());
+            return redirect('/')->with('error', 'Facebook login failed.');
+        }
+    }
 }

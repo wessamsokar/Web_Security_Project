@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -47,12 +46,22 @@ return [
         'redirect' => env('GITHUB_REDIRECT_URI'),
     ],
 
-
     'microsoft' => [
         'client_id' => env('MICROSOFT_CLIENT_ID'),
         'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
         'redirect' => env('MICROSOFT_REDIRECT_URI'),
     ],
 
+    'discord' => [
+        'client_id' => env('DISCORD_CLIENT_ID'),
+        'client_secret' => env('DISCORD_CLIENT_SECRET'),
+        'redirect' => env('DISCORD_REDIRECT_URI'),
+    ],
+
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => env('FACEBOOK_REDIRECT_URI'),
+    ],
 
 ];
