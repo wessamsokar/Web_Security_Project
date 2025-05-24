@@ -102,7 +102,7 @@
                                     <i class="bi bi-facebook text-primary"></i>
                                 </a>
                                 <a href="{{ route('login_with_github') }}" class="btn btn-outline border">
-                                    <i class="bi bi-github"></i>
+                                    <i class="bi bi-microsoft"></i>
                                 </a>
                                 <a href="{{ route('login_with_linkedin') }}" class="btn btn-outline-light border">
                                     <i class="bi bi-linkedin text-primary"></i>
