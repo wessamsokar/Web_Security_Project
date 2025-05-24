@@ -29,6 +29,7 @@ class User extends Authenticatable
         'remember_token',
         'email_verified_at',
         'temp_password',
+        'temp_password_expires_at',
         'facebook_id',
         'facebook_token',
         'facebook_refresh_token'
@@ -55,6 +56,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'birth_date' => 'date',
+            'temp_password' => 'boolean',
+            'temp_password_expires_at' => 'datetime',
         ];
     }
 

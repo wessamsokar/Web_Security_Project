@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
 use App\Mail\VerificationEmail;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -49,35 +50,35 @@ class AuthController extends Controller
     }
     public function register(Request $request)
     {
-            $validated = $request->validate([
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:8',
-            ], [
-                'email.required' => 'Please enter your email address.',
-                'email.email' => 'Please enter a valid email address.',
-                'email.unique' => 'This email is already registered.',
-                'password.required' => 'Please enter a password.',
-                'password.min' => 'Password must be at least 8 characters.',
-                'password.confirmed' => 'Password confirmation does not match.',
-            ]);
+        $validated = $request->validate([
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8',
+        ], [
+            'email.required' => 'Please enter your email address.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email is already registered.',
+            'password.required' => 'Please enter a password.',
+            'password.min' => 'Password must be at least 8 characters.',
+            'password.confirmed' => 'Password confirmation does not match.',
+        ]);
 
-            $user = User::create([
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-                'name' => null,
-            ]);
+        $user = User::create([
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'name' => null,
+        ]);
 
-            // Assign default role
-            $user->assignRole('Customer');
+        // Assign default role
+        $user->assignRole('Customer');
 
-            Auth::login($user);
+        Auth::login($user);
 
-            $title = "Verification Link";
-            $token = Crypt::encryptString(json_encode(['id' => $user->id, 'email' => $user->email]));
-            $link = route("verify", ['token' => $token]);
-            Mail::to($user->email)->send(new VerificationEmail($link, $user->name));
+        $title = "Verification Link";
+        $token = Crypt::encryptString(json_encode(['id' => $user->id, 'email' => $user->email]));
+        $link = route("verify", ['token' => $token]);
+        Mail::to($user->email)->send(new VerificationEmail($link, $user->name));
 
-            return redirect()->route('register.complete');
+        return redirect()->route('register.complete');
 
     }
 
@@ -319,33 +320,6 @@ class AuthController extends Controller
         }
     }
 
-    public function redirectToLinkedin()
-    {
-        return Socialite::driver('linkedin')->redirect();
-    }
-
-    public function handleLinkedinCallback()
-    {
-        try {
-            $linkedinUser = Socialite::driver('linkedin')->stateless()->user();
-
-            $user = User::firstOrCreate(
-                ['email' => $linkedinUser->getEmail()],
-                [
-                    'name' => $linkedinUser->getName(),
-                    'linkedin_id' => $linkedinUser->getId(),
-                    'email_verified_at' => now(),
-                    'password' => bcrypt(Str::random(16)),
-                ]
-            );
-
-            Auth::login($user);
-            return redirect('/');
-
-        } catch (\Exception $e) {
-            return redirect('/login')->with('error', 'LinkedIn login failed.');
-        }
-    }
 
     public function redirectToMicrosoft()
     {
@@ -386,13 +360,58 @@ class AuthController extends Controller
         }
     }
 
+    public function redirectToDiscord()
+    {
+        return Socialite::driver('discord')->scopes(['identify', 'email'])->redirect();
+    }
+
+
+    public function handleDiscordCallback()
+    {
+        try {
+            $discordUser = Socialite::driver('discord')->user();
+
+            // Discord may not return email if not verified
+            if (!$discordUser->getEmail()) {
+                return redirect('/')->with('error', 'Discord account does not have a verified email.');
+            }
+
+            $user = User::where('email', $discordUser->getEmail())->first();
+
+            if ($user) {
+                $user->discord_id = $discordUser->getId();
+                $user->discord_token = $discordUser->token;
+                $user->save();
+            } else {
+                $user = User::create([
+                    'name' => $discordUser->getName() ?? $discordUser->getNickname(),
+                    'email' => $discordUser->getEmail(),
+                    'discord_id' => $discordUser->getId(),
+                    'discord_token' => $discordUser->token,
+                    'password' => Hash::make(\Str::random(16)),
+                ]);
+            }
+
+            Auth::login($user);
+
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('Discord login failed: ' . $e->getMessage());
+            return redirect('/')->with('error', 'Discord login failed.');
+        }
+    }
+
     public function loginWithCertificate(Request $request)
     {
         // dd($_SERVER);
 
-        $clientCert = $_SERVER['SSL_CLIENT_S_DN'] ?? 
-                    $_SERVER['REDIRECT_SSL_CLIENT_S_DN'] ?? 
-                    null;
+        $clientCert = $_SERVER['SSL_CLIENT_S_DN'] ??
+            $_SERVER['REDIRECT_SSL_CLIENT_S_DN'] ??
+            null;
 
         if (!$clientCert) {
             return back()->withErrors([
