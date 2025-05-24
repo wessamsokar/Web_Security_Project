@@ -84,18 +84,14 @@ Route::get('/auth/microsoft/callback', [AuthController::class, 'handleMicrosoftC
 Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot_password');
 Route::post('/forgot-password', [AuthController::class, 'sendTemporaryPassword'])->name('send_temp_password');
 
-Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('login_with_google');
-Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
 Route::get('verify', [AuthController::class, 'verify'])->name('verify');
-Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('login_with_google');
-Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
-Route::get('/auth/facebook', [AuthController::class, 'redirectToFacebook'])->name('login_with_facebook');
-Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCallback'])->name('handleFacebookCallback');
-Route::get('/auth/github/redirect', [AuthController::class, 'redirectToGithub'])->name('login_with_github');
-Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback']);
-Route::get('/auth/linkedin', [AuthController::class, 'redirectToLinkedin'])->name('login_with_linkedin');
-Route::get('/auth/linkedin/callback', [AuthController::class, 'handleLinkedinCallback']);
-Route::post('/login/certificate', [AuthController::class, 'loginWithCertificate'])->name('login.certificate');
+
+
 >>>>>>> Stashed changes
 Route::get('/auth/github', [AuthController::class, 'redirectToGithub'])->name('login_with_github');
 Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback']);
+
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('login_with_google');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+

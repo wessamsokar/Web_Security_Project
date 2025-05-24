@@ -307,6 +307,53 @@ class AuthController extends Controller
 
         return back()->withErrors(['certificate' => 'No valid certificate found.']);
     }
-    
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = \Socialite::driver('google')->user();
+
+            // Try to find user by google_id first
+            $user = User::where('google_id', $googleUser->getId())->first();
+
+            if (!$user) {
+                // If not found, try to find by email
+                $user = User::where('email', $googleUser->getEmail())->first();
+
+                if ($user) {
+                    // Update existing user with google_id and tokens
+                    $user->google_id = $googleUser->getId();
+                    $user->google_token = $googleUser->token;
+                    $user->google_refresh_token = $googleUser->refreshToken;
+                    $user->save();
+                } else {
+                    // Create new user
+                    $user = User::create([
+                        'name' => $googleUser->getName(),
+                        'email' => $googleUser->getEmail(),
+                        'google_id' => $googleUser->getId(),
+                        'google_token' => $googleUser->token,
+                        'google_refresh_token' => $googleUser->refreshToken,
+                        // You may want to set a random password or leave it null if allowed
+                        'password' => \Hash::make(Str::random(16)),
+                    ]);
+                }
+            }
+
+            Auth::login($user);
+            // Assign role only if user is new or doesn't have it
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('Google login failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect('/login')->with('error', 'Google login failed.' . $e->getMessage());
+        }
+    }
 >>>>>>> Stashed changes
 }
