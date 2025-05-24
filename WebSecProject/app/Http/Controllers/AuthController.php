@@ -347,28 +347,81 @@ class AuthController extends Controller
         }
     }
 
+    public function redirectToMicrosoft()
+    {
+        return Socialite::driver('microsoft')->redirect();
+    }
+
+    public function handleMicrosoftCallback()
+    {
+        try {
+            $microsoftUser = Socialite::driver('microsoft')->user();
+
+            $user = User::where('email', $microsoftUser->getEmail())->first();
+
+            if ($user) {
+                $user->microsoft_id = $microsoftUser->getId();
+                $user->microsoft_token = $microsoftUser->token;
+                $user->save();
+            } else {
+                $user = User::create([
+                    'name' => $microsoftUser->getName() ?? $microsoftUser->getNickname(),
+                    'email' => $microsoftUser->getEmail(),
+                    'microsoft_id' => $microsoftUser->getId(),
+                    'microsoft_token' => $microsoftUser->token,
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+            }
+
+            Auth::login($user);
+
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('Microsoft login failed: ' . $e->getMessage());
+            return redirect('/login')->with('error', 'Microsoft login failed.');
+        }
+    }
+
     public function loginWithCertificate(Request $request)
     {
-        // Extract certificate subject from the server environment
-        $clientCert = $_SERVER['SSL_CLIENT_S_DN'] ?? null;
+        // dd($_SERVER);
 
-        if ($clientCert) {
-            // Example: parse email from DN string like: "emailAddress=user@example.com,CN=User Name,O=Example Org"
-            preg_match('/emailAddress=([^,]+)/', $clientCert, $matches);
-            $email = $matches[1] ?? null;
+        $clientCert = $_SERVER['SSL_CLIENT_S_DN'] ?? 
+                    $_SERVER['REDIRECT_SSL_CLIENT_S_DN'] ?? 
+                    null;
 
-            if ($email) {
-                $user = User::where('email', $email)->first();
-                if ($user) {
-                    Auth::login($user);
-                    return redirect()->intended('/');
-                } else {
-                    return back()->withErrors(['email' => 'Certificate email not recognized.']);
-                }
-            }
+        if (!$clientCert) {
+            return back()->withErrors([
+                'certificate' => 'No valid certificate found. Please ensure you have a valid client certificate installed.'
+            ]);
         }
 
-        return back()->withErrors(['certificate' => 'No valid certificate found.']);
+        // Extract email address more robustly from certificate DN string
+        preg_match('/emailAddress=([^,\/]+)/i', $clientCert, $matches);
+        $email = $matches[1] ?? null;
+
+        if (!$email) {
+            return back()->withErrors([
+                'certificate' => 'Valid certificate found, but no email address in subject.'
+            ]);
+        }
+
+        // Find user by email from cert
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Certificate email not recognized. Please contact support.'
+            ]);
+        }
+
+        // Login the user and redirect to intended page or home
+        Auth::login($user);
+        return redirect()->intended('dashboard')->with('success', 'Logged in successfully using certificate authentication.');
     }
 
 }

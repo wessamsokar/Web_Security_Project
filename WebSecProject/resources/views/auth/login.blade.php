@@ -104,8 +104,8 @@
                                 <a href="{{ route('login_with_github') }}" class="btn btn-outline border">
                                     <i class="bi bi-github"></i>
                                 </a>
-                                <a href="{{ route('login_with_linkedin') }}" class="btn btn-outline-light border">
-                                    <i class="bi bi-linkedin text-primary"></i>
+                                <a href="{{ route('login_with_microsoft') }}" class="btn btn-outline-light border">
+                                    <i class="bi bi-microsoft text-primary"></i>
                                 </a>
                             </div>
 
@@ -121,6 +121,15 @@
                                     <span>Certificate</span>
                                 </button>
                             </div>
+
+                            {{-- Display certificate-related errors --}}
+                            @if ($errors->has('certificate'))
+                                <div class="alert alert-danger">{{ $errors->first('certificate') }}</div>
+                            @endif
+
+                            @if ($errors->has('email'))
+                                <div class="alert alert-danger">{{ $errors->first('email') }}</div>
+                            @endif
                         </form>
                     </div>
                 </div>

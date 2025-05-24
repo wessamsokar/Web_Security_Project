@@ -4,22 +4,22 @@
 
 @section('content')
 <div class="container py-4">
-        <h2 class="mb-4">Welcome Back, {{ Auth::user()->first_name }}!</h2>
+    <h2 class="mb-4">Welcome Back, {{ Auth::user()->first_name }}!</h2>
 
-        <!-- Profile Summary -->
-        <div class="card mb-4 shadow-sm">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <h5>Your Profile</h5>
-                    <p class="mb-1"><strong>Name:</strong> {{ Auth::user()->full_name }}</p>
-                    <p class="mb-0"><strong>Email:</strong> {{ Auth::user()->email }}</p>
-                </div>
-                <a href="{{ route('profile') }}" class="btn btn-outline-primary">Edit Profile</a>
+    <!-- Profile Summary -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+                <h5>Your Profile</h5>
+                <p class="mb-1"><strong>Name:</strong> {{ Auth::user()->full_name }}</p>
+                <p class="mb-0"><strong>Email:</strong> {{ Auth::user()->email }}</p>
             </div>
+            <a href="{{ route('profile') }}" class="btn btn-outline-primary">Edit Profile</a>
         </div>
+    </div>
 
-        <!-- Dashboard Cards -->
-        <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4">
+        @role('Customer')
             <div class="col-md-3">
                 <div class="card text-white bg-primary h-100 shadow-sm">
                     <div class="card-body d-flex justify-content-between align-items-center">
@@ -77,8 +77,61 @@
                     <span class="card-footer text-white small">Based on completed orders</span>
                 </div>
             </div>
-        </div>
+        @endrole
 
+        @role('Customer Service')
+            <div class="col-md-4">
+                <div class="card bg-info text-white shadow-sm h-100">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Customer Service</h5>
+                            <p class="mb-0">Manage support tickets and customer inquiries</p>
+                        </div>
+                        <i class="bi bi-headset fs-1"></i>
+                    </div>
+                    <a href="{{ route('customer-service.dashboard') }}" class="card-footer text-white text-decoration-none small">
+                        Go to Dashboard <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        @endrole
+
+        @can('view_users')
+            <div class="col-md-4">
+                <div class="card bg-secondary text-white shadow-sm h-100">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">User Management</h5>
+                            <p class="mb-0">Manage system users and their roles</p>
+                        </div>
+                        <i class="bi bi-shield-lock fs-1"></i>
+                    </div>
+                    <a href="{{ route('users.index') }}" class="card-footer text-white text-decoration-none small">
+                        Manage Users <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        @endcan
+
+        @can('view_products')
+            <div class="col-md-4">
+                <div class="card bg-success text-white shadow-sm h-100">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Product Management</h5>
+                            <p class="mb-0">View and edit product listings</p>
+                        </div>
+                        <i class="bi bi-grid fs-1"></i>
+                    </div>
+                    <a href="{{ route('products.index') }}" class="card-footer text-white text-decoration-none small">
+                        View Products <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        @endcan
+    </div>
+
+    @role('Customer')
         <!-- Recent Orders Table -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-light">
@@ -117,14 +170,7 @@
                 </table>
             </div>
         </div>
+    @endrole
 
-        <!-- Admin Panel Link -->
-        @can('view_users')
-            <div class="text-end">
-                <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
-                    Go to Admin Panel <i class="bi bi-shield-lock ms-1"></i>
-                </a>
-            </div>
-        @endcan
 </div>
 @endsection
