@@ -95,3 +95,5 @@ Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallbac
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('login_with_google');
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
+Route::get('/auth/facebook', [AuthController::class, 'redirectToFacebook'])->name('login_with_facebook');
+Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);

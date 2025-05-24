@@ -354,6 +354,49 @@ class AuthController extends Controller
             Log::error('Google login failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return redirect('/login')->with('error', 'Google login failed.' . $e->getMessage());
         }
+        public function redirectToDiscord()
+    {
+        return Socialite::driver('discord')->scopes(['identify', 'email'])->redirect();
     }
+    public function facebookRedirect()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    public function facebookCallback()
+    {
+        try {
+            $facebookUser = Socialite::driver('facebook')->user();
+
+            $user = User::where('email', $facebookUser->getEmail())->first();
+
+            if ($user) {
+                $user->facebook_id = $facebookUser->getId();
+                $user->facebook_token = $facebookUser->token;
+                $user->save();
+            } else {
+                $user = User::create([
+                    'name' => $facebookUser->getName() ?? $facebookUser->getNickname(),
+                    'email' => $facebookUser->getEmail(),
+                    'facebook_id' => $facebookUser->getId(),
+                    'facebook_token' => $facebookUser->token,
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+            }
+
+            Auth::login($user);
+
+            if (!$user->hasRole('Customer')) {
+                $user->assignRole('Customer');
+            }
+
+            return redirect('/');
+        } catch (\Exception $e) {
+            Log::error('Facebook login failed: ' . $e->getMessage());
+            return redirect('/login')->with('error', 'Facebook login failed.');
+        }
+    }
+
+}
 >>>>>>> Stashed changes
 }
