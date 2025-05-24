@@ -1,0 +1,4 @@
+basicConstraints = CA:FALSE
+ keyUsage = digitalSignature
+ extendedKeyUsage = clientAuth
+ subjectAltName = email:youssefsalem.nis2006@gmail.com

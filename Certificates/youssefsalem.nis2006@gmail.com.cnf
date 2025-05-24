@@ -1,0 +1,17 @@
+ [req]
+ prompt = no
+ distinguished_name = dn
+ req_extensions = v3_req
+ [dn]
+ C=EG
+ ST=Cairo
+ L=Cairo
+ O=WebSec Course
+ OU=Users
+ CN=youssefsalem.nis2006@gmail.com
+ emailAddress=youssefsalem.nis2006@gmail.com
+ [v3_req]
+ basicConstraints = CA:FALSE
+ keyUsage = digitalSignature
+ extendedKeyUsage = clientAuth
+ subjectAltName = email:youssefsalem.nis2006@gmail.com

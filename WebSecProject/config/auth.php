@@ -111,5 +111,15 @@ return [
     */
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+     'guards' => [ 
+    'web' => [ 
+        'driver' => 'session', 
+        'provider' => 'users', 
+    ],
+    'api' => [
+        'driver' => 'passport',
+        'provider' => 'users',
+    ],
+],
 
 ];
