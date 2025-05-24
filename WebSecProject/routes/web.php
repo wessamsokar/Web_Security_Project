@@ -118,6 +118,8 @@ Route::get('/auth/github/redirect', [AuthController::class, 'redirectToGithub'])
 Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback']);
 Route::get('/auth/linkedin', [AuthController::class, 'redirectToLinkedin'])->name('login_with_linkedin');
 Route::get('/auth/linkedin/callback', [AuthController::class, 'handleLinkedinCallback']);
+Route::get('/auth/microsoft', [AuthController::class, 'redirectToMicrosoft'])->name('login_with_microsoft');
+Route::get('/auth/microsoft/callback', [AuthController::class, 'handleMicrosoftCallback']);
 Route::post('/login/certificate', [AuthController::class, 'loginWithCertificate'])->name('login.certificate');
 
 // Email verification route (optional)

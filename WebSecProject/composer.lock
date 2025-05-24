@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "444f5ce0b7b9b8c1b3182cd9d43d66ea",
+    "content-hash": "39b62cb307464786e843828b15e0266d",
     "packages": [
         {
             "name": "brick/math",
@@ -4552,6 +4552,56 @@
                 "source": "https://github.com/socialiteproviders/manager"
             },
             "time": "2025-02-24T19:33:30+00:00"
+        },
+        {
+            "name": "socialiteproviders/microsoft",
+            "version": "4.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SocialiteProviders/Microsoft.git",
+                "reference": "76d51308ef53d1425a5ce3c3b094b0925cd82951"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SocialiteProviders/Microsoft/zipball/76d51308ef53d1425a5ce3c3b094b0925cd82951",
+                "reference": "76d51308ef53d1425a5ce3c3b094b0925cd82951",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "^8.0",
+                "socialiteproviders/manager": "^4.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SocialiteProviders\\Microsoft\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Brian Faust",
+                    "email": "hello@brianfaust.de"
+                }
+            ],
+            "description": "Microsoft OAuth2 Provider for Laravel Socialite",
+            "keywords": [
+                "laravel",
+                "microsoft",
+                "oauth",
+                "provider",
+                "socialite"
+            ],
+            "support": {
+                "docs": "https://socialiteproviders.com/microsoft",
+                "issues": "https://github.com/socialiteproviders/providers/issues",
+                "source": "https://github.com/socialiteproviders/providers"
+            },
+            "time": "2024-11-07T21:57:40+00:00"
         },
         {
             "name": "spatie/laravel-permission",
