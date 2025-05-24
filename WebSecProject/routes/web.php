@@ -120,6 +120,8 @@ Route::get('/auth/linkedin', [AuthController::class, 'redirectToLinkedin'])->nam
 Route::get('/auth/linkedin/callback', [AuthController::class, 'handleLinkedinCallback']);
 Route::get('/auth/microsoft', [AuthController::class, 'redirectToMicrosoft'])->name('login_with_microsoft');
 Route::get('/auth/microsoft/callback', [AuthController::class, 'handleMicrosoftCallback']);
+Route::get('/auth/discord', [AuthController::class, 'redirectToDiscord'])->name('login_with_discord');
+Route::get('/auth/discord/callback', [AuthController::class, 'handleDiscordCallback']);
 Route::post('/login/certificate', [AuthController::class, 'loginWithCertificate'])->name('login.certificate');
 
 // Email verification route (optional)

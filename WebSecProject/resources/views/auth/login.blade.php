@@ -60,9 +60,9 @@
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email address</label>
                                 <input type="email"
-                                    class="form-control form-control-lg @error('email') is-invalid @enderror"
-                                    id="email" name="email" value="{{ old('email') }}"
-                                    autocomplete="email" placeholder="example@domain.com">
+                                    class="form-control form-control-lg @error('email') is-invalid @enderror" id="email"
+                                    name="email" value="{{ old('email') }}" autocomplete="email"
+                                    placeholder="example@domain.com">
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -74,8 +74,8 @@
                                 <div class="input-group">
                                     <input type="password"
                                         class="form-control form-control-lg @error('password') is-invalid @enderror"
-                                        id="password" name="password"
-                                        autocomplete="current-password" placeholder="Enter your password">
+                                        id="password" name="password" autocomplete="current-password"
+                                        placeholder="Enter your password">
                                     <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -107,17 +107,23 @@
                                 <a href="{{ route('login_with_microsoft') }}" class="btn btn-outline-light border">
                                     <i class="bi bi-microsoft text-primary"></i>
                                 </a>
+                                <a href="{{ route('login_with_discord') }}" class="btn btn-outline-light border">
+                                    <i class="bi bi-discord text-primary fs-5"></i>
+                                </a>
                             </div>
 
                             <div class="text-center">
-                                <a href="{{ route('forgot_password') }}" class="text-decoration-none">Forgot Password?</a>
+                                <a href="{{ route('forgot_password') }}" class="text-decoration-none">Forgot
+                                    Password?</a>
                             </div>
                         </form>
                         <form action="{{ route('login.certificate') }}" method="POST">
                             @csrf
                             <div class="d-grid mb-3">
-                                <button type="submit" class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2">
-                                    <img src="https://img.icons8.com/ios-filled/20/000000/certificate.png" alt="Certificate Icon">
+                                <button type="submit"
+                                    class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2">
+                                    <img src="https://img.icons8.com/ios-filled/20/000000/certificate.png"
+                                        alt="Certificate Icon">
                                     <span>Certificate</span>
                                 </button>
                             </div>
