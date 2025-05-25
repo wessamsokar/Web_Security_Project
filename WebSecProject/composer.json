@@ -13,7 +13,7 @@
         "laravel/socialite": "*",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
-        "socialiteproviders/discord": "*",
+        "socialiteproviders/discord": "^4.2",
         "socialiteproviders/manager": "*",
         "socialiteproviders/microsoft": "^4.6",
         "socialiteproviders/microsoft-azure": "*",

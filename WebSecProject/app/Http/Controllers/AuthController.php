@@ -46,7 +46,7 @@ class AuthController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->with('error', 'Please enter valid credentials or use a certificate.');
+        return back()->with('error', 'invalid password or email.')->withInput($request->only('email'));
     }
     public function register(Request $request)
     {

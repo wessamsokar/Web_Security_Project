@@ -50,7 +50,7 @@ return [
     'github' => [
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'redirect' => env('GITHUB_REDIRECT_URI'),
+        'redirect' => env('github_REDIRECT_URI'),
     ],
 
     'linkedin' => [
@@ -68,7 +68,7 @@ return [
     'discord' => [
         'client_id' => env('DISCORD_CLIENT_ID'),
         'client_secret' => env('DISCORD_CLIENT_SECRET'),
-        'redirect' => env('DISCORD_REDIRECT_URI'),
+        'redirect' => env('DISCORD_REDIRECT_URL'),
     ],
 
 ];
