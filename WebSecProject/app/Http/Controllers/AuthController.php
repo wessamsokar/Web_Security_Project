@@ -46,7 +46,7 @@ class AuthController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->with('error', 'invalid password or email.')->withInput($request->only('email'));
+        return back()->with('error', 'Invalid password or email.')->withInput($request->only('email'));
     }
     public function register(Request $request)
     {
